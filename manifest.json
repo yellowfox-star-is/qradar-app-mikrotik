@@ -1,0 +1,21 @@
+{
+  "name": "SDK Hello World",
+  "description": "Simple example app",
+  "version": "1.0",
+  "image": "qradar-app-base:2.1.12",
+  "resources": {
+    "memory": 100
+  },
+  "areas": [
+    {
+      "id": "QHelloWorld",
+      "text": "Hello World",
+      "description": "Hello World area",
+      "url": "index",
+      "required_capabilities": [
+        "ADMIN"
+      ]
+    }
+  ],
+  "uuid": "94af2e17-7650-4efe-9196-f234dd8883c2"
+}
