@@ -1,12 +1,23 @@
-import requests
+import time
+
+import requests, json, logging, sys
 from qpylib.ariel import ArielSearch, ArielError
-import json
-import logging
-import sys
 
 ariel = ArielSearch()
 
-search_state = ['COMPLETED', 'WAIT']
+
+"""Time"""
+class States:
+    Completed = 'COMPLETED'
+    Wait = 'WAIT'
+    Unknown = 'unknown'
+
+
+"""Timeout in milliseconds when waiting for search results update."""
+Timeout: int = 5
+
+__test_query = "SELECT * FROM events LAST 10 MINUTES"
+
 
 def search_start(query):
     try:
@@ -39,8 +50,39 @@ def search_results(search_id):
     return response
 
 
+def decide_which_timeout(timeout_func):
+    if timeout_func != 0:
+        return timeout_func
+    return Timeout
+
+
+def search(query, timeout_func=0):
+    try:
+        timeout_local = decide_which_timeout(timeout_func)
+
+        status, search_id = search_start(query)
+        record_count = 0
+
+        # Loop that waits for when the search is completed.
+        while True:
+            status, record_count = search_status(search_id)
+
+            if status == States.Wait:
+                time.sleep(timeout_local / 1000)
+                continue
+            if status == States.Completed:
+                break
+            raise NotImplementedError("encountered not known search status")
+
+        return search_results(search_id)['events']
+        # NOTE XXX should search be deleted after acquiring results?
+
+    except ArielError:
+        return None
+
+
 def test_basic():
-    status, search_id = search_start("SELECT * FROM events LAST 10 MINUTES")
+    status, search_id = search_start(__test_query)
     logging.debug((status, search_id))
     status, record_count = search_status(search_id)
     logging.debug((status, record_count))
@@ -62,6 +104,12 @@ def test_basic():
     return 0
 
 
+def test_full_search():
+    results = search(__test_query)
+    return len(results) > 0
+
+
 if __name__ == "__main__":
-    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+    logging.basicConfig(stream=sys.stderr, level=logging.INFO)
     test_basic()
+    test_full_search()
