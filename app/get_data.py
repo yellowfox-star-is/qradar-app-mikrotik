@@ -35,7 +35,7 @@ def get_event_source_type_id():
 
     # there should be only one log source type of this name
     if len(data) > 1:
-        raise NotImplementedError(f'Got more than one Log Source type of name: "{name}".')
+        raise NotImplementedError(f'Got more than one Log Source type of name: "{event_source_type_name}".')
     return data[0]["id"]
 
 
@@ -43,10 +43,10 @@ def get_routers():
     # get response
     event_source_id = get_event_source_type_id()
     params = {
-        "": ""
+        "filter": f"type_id={event_source_id}"
     }
     response = qpylib.REST(rest_action="GET",
-                           request_url="",
+                           request_url="/api/config/event_sources/log_source_management/log_sources",
                            params=params)
 
     # parse response
@@ -65,4 +65,8 @@ def get_routers():
 
 
 if __name__ == "__main__":
-    get_routers()
+    routers = get_routers()
+    print(routers)
+    search_results = search.search(f"SELECT * FROM events WHERE logsourceid = {routers[0]['id']} LAST 7 DAYS")
+    print(json.dumps(search_results, indent=4))
+    # print(get_all())

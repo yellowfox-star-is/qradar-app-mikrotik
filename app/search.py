@@ -11,13 +11,14 @@ class States:
     Completed = 'COMPLETED'
     Wait = 'WAIT'
     Sorting = 'SORTING'
+    Execute = 'EXECUTE'
     Unknown = 'unknown'
 
-    waiting = [Wait, Sorting]
+    waiting = [Wait, Sorting, Execute]
 
 
-"""Timeout in milliseconds when waiting for search results update."""
-Timeout: int = 5
+"""Timeout in seconds when waiting for search results update."""
+Timeout: int = 1
 
 __test_query = "SELECT * FROM events LAST 10 MINUTES"
 
@@ -27,7 +28,7 @@ def search_start(query):
     try:
         response = ariel.search(query)
     except ArielError as error:
-        return {"Error": str(error)}
+        return "Error", {"Error": str(error)}
 
     log_status(response[0])
     return response
@@ -74,11 +75,11 @@ def search(query, timeout_func=0):
             status, record_count = search_status(search_id)
 
             if status in States.waiting:
-                time.sleep(timeout_local / 1000)
+                time.sleep(timeout_local)
                 continue
             if status == States.Completed:
                 break
-            raise NotImplementedError("encountered not known search status")
+            raise NotImplementedError(f"encountered not known search status: {status}")
 
         return search_results(search_id)['events']
         # NOTE XXX should search be deleted after acquiring results?
