@@ -7,8 +7,11 @@
 from flask import Blueprint, render_template, current_app, send_from_directory
 from qpylib import qpylib
 
+import json
+
 # pylint: disable=invalid-name
 viewsbp = Blueprint('viewsbp', __name__, url_prefix='/')
+app = viewsbp
 
 # A simple "Hello" endpoint that demonstrates use of render_template
 # and qpylib logging.
@@ -24,3 +27,13 @@ def hello(name=None):
 @viewsbp.route('/favicon.ico')
 def favicon():
     return send_from_directory(current_app.static_folder, 'favicon-16x16.png')
+
+
+@viewsbp.route('/monitor')
+def monitor():
+    return render_template('monitor.html')
+
+@app.route('/test_func')
+def test_func():
+    message = {'greeting':'Hello from Flask!'}
+    return json.dumps(message)

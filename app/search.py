@@ -10,7 +10,10 @@ ariel = ArielSearch()
 class States:
     Completed = 'COMPLETED'
     Wait = 'WAIT'
+    Sorting = 'SORTING'
     Unknown = 'unknown'
+
+    waiting = [Wait, Sorting]
 
 
 """Timeout in milliseconds when waiting for search results update."""
@@ -18,6 +21,7 @@ Timeout: int = 5
 
 __test_query = "SELECT * FROM events LAST 10 MINUTES"
 
+log_status = lambda s: logging.debug(f"acquired status: {s}")
 
 def search_start(query):
     try:
@@ -25,6 +29,7 @@ def search_start(query):
     except ArielError as error:
         return {"Error": str(error)}
 
+    log_status(response[0])
     return response
 
 
@@ -34,6 +39,7 @@ def search_status(search_id):
     except ArielError as error:
         return {"Error": str(error)}
 
+    log_status(response[0])
     return response
 
 
@@ -67,7 +73,7 @@ def search(query, timeout_func=0):
         while True:
             status, record_count = search_status(search_id)
 
-            if status == States.Wait:
+            if status in States.waiting:
                 time.sleep(timeout_local / 1000)
                 continue
             if status == States.Completed:

@@ -1,0 +1,15 @@
+{
+  "name": "MikroTik App",
+  "description": "Simple example app",
+  "version": "1.0",
+  "image": "qradar-app-base:2.1.12",
+  "resources": {"memory": 100},
+  "areas": [{
+    "id": "qmikrotik",
+    "text": "Hello World",
+    "description": "Hello World area",
+    "url": "index",
+    "required_capabilities": ["ADMIN"]
+  }],
+  "uuid": "45e10b07-c36f-4756-935f-e8aff13ef049"
+}
