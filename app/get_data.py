@@ -93,6 +93,10 @@ def get_networks(router_id):
     ipv6_source = remove_empty(ipv6_source, all_empty)
 
     # find a network from ip addresses
+    distance = address_distance('192.168.1.250', '192.168.2.250')
+
+    # XXX TODO I should ask overseer, if it is really smart to do this, it could take very long
+    # so far have a look on devices and offenses
 
     return None
 
@@ -114,6 +118,15 @@ def sort_ip_addresses(ip_list):
             else:
                 raise NotImplementedError(f"{ip_address} is not a valid IPv4 or IPv6 address")
     return ipv4_addresses, ipv6_addresses
+
+
+def address_distance(ip_address1, ip_address2):
+    ip_add1_number = int(ipaddress.ip_address(ip_address1))
+    ip_add2_number = int(ipaddress.ip_address(ip_address2))
+
+    differing_bit_position = highest_differing_bit(ip_add1_number, ip_add2_number)
+
+    return differing_bit_position
 
 
 # REUSED CODE

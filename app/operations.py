@@ -39,3 +39,25 @@ def check_ip_address(address):
         pass
 
     return None
+
+
+def highest_power_of_two(n):
+    power = 1
+    while power < n:
+        power <<= 1
+    if power > n:
+        power >>= 1
+    return power
+
+
+def highest_differing_bit(n1: int, n2: int):
+    mask = ~0
+    position = 0
+    # XXX CRITICAL this is very dangerous, should be replaced with for loop
+    # can fail on overflow
+    while True:
+        if mask & n1 == mask & n2:
+            return position
+        position += 1
+        mask <<= 1
+    return position
