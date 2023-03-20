@@ -28,6 +28,7 @@ def search_start(query):
     try:
         response = ariel.search(query)
     except ArielError as error:
+        logging.error(str(error))
         return "Error", {"Error": str(error)}
 
     log_status(response[0])

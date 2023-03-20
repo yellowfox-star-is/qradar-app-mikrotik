@@ -22,6 +22,38 @@ def get_all():
     return result
 
 
+def get_qid_record_id(qid_name: str):
+    params = {
+        'filter': f'name="{qid_name}"',
+        'Range': 'item=0-49'
+    }
+    response = qpylib.REST(rest_action='GET',
+                           request_url='/api/data_classification/qid_records',
+                           params=params)
+    data = response.json()
+
+    return data["id"]
+
+
+def get_devices(router_id: str):
+    assigned_event_id = get_qid_record_id("Assigned IP Address")
+    deassgined_event_id = get_qid_record_id("Deassigned IP Address")
+    query = search.search(f'SELECT sourcemac, sourceip, sourcev6 '
+                          f'FROM events '
+                          f'WHERE eventid = {assigned_event_id} '
+                          f'OR eventid = {deassgined_event_id} '
+                          f'ORDER BY startTime DESC')
+
+    if len(query) == 0:
+        return []
+
+    devices = []
+    deassigned_list = []
+    for event in query:
+
+
+
+
 def get_offenses(router_id: str):
     params = {
         'filter': f'log_sources contains id={router_id} and status="OPEN"',
@@ -160,7 +192,7 @@ def decode_payloads(payloads):
 if __name__ == "__main__":
     routers = get_routers()
     print(routers)
-    # search_results = search.search(f"SELECT * FROM events WHERE logsourceid = {routers[0]['id']} LAST 7 DAYS")
-    # print(json.dumps(search_results, indent=4))
+    search_results = search.search(f"SELECT * FROM events LAST 1 HOURS")
+    print(json.dumps(search_results, indent=4))
     # print(get_all())
     print(get_networks(routers[0]["id"]))
