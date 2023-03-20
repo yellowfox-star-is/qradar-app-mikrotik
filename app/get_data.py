@@ -22,6 +22,21 @@ def get_all():
     return result
 
 
+def get_offenses(router_id: str):
+    params = {
+        'filter': f'log_sources contains id={router_id} and status="OPEN"',
+        'Range': 'items=0-49'
+    }
+    response = qpylib.REST(rest_action='GET',
+                           request_url='/api/siem/offenses',
+                           params=params)
+    data = response.json()
+
+    # TODO parse the data more, test when there is an offense
+
+    return data
+
+
 def get_event_source_type_id():
     # get response
     params = {
