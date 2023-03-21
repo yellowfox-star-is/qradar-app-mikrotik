@@ -1,5 +1,7 @@
 import copy
 import base64
+import logging
+
 import search
 import json
 import objects
@@ -8,6 +10,11 @@ from operations import is_not_in
 from qpylib import qpylib
 
 event_source_type_name = "Mikrotik RouterOS"
+
+ip4_empty = ['0.0.0.0']
+ip6_empty = ['0:0:0:0:0:0:0:0']
+mac_empty = ['00:00:00:00:00:00']
+all_empty = ip4_empty + ip6_empty + mac_empty
 
 
 def get_all():
@@ -32,26 +39,72 @@ def get_qid_record_id(qid_name: str):
                            params=params)
     data = response.json()
 
-    return data["id"]
+    if len(data) > 1:
+        logging.warning(f"Received more qid records than expected:\n {data}")
+    if len(data) == 0:
+        logging.error("Didn't receive any qid in API call.")
+
+    return data[0]['qid']
 
 
 def get_devices(router_id: str):
-    assigned_event_id = get_qid_record_id("Assigned IP Address")
-    deassgined_event_id = get_qid_record_id("Deassigned IP Address")
-    query = search.search(f'SELECT sourcemac, sourceip, sourcev6 '
+    # TODO XXX need to add expendable days, somehow, find what the upper limit is
+    days = 31
+    assigned_event_qid = get_qid_record_id("Assigned IP Address")
+    deassgined_event_qid = get_qid_record_id("Deassigned IP Address")
+    query = search.search(f'SELECT sourcemac, sourceip, sourcev6, eventid, qid '
                           f'FROM events '
-                          f'WHERE eventid = {assigned_event_id} '
-                          f'OR eventid = {deassgined_event_id} '
-                          f'ORDER BY startTime DESC')
+                          f'WHERE qid = {assigned_event_qid} '
+                          f'OR qid = {deassgined_event_qid} '
+                          f'ORDER BY startTime DESC '
+                          f'LAST {days} DAYS')
 
     if len(query) == 0:
         return []
 
     devices = []
-    deassigned_list = []
+    completed_list = []
     for event in query:
+        event_qid = event['qid']
+        event_mac = event['sourcemac']
+        event_add = pick_nonempty_addresses([event['sourceip'], event['sourcev6']])
+
+        # IF BROKEN RECORD
+        if event_mac in mac_empty:
+            # TODO XXX Need to somehow notify the user, that they have broken records.
+            # Technically, this event should have both sourcemac and source IP.
+            # So if none are here, DSM module might be broken.
+            continue
+
+        if event_mac in completed_list:
+            continue
+
+        if event_qid == deassgined_event_qid:
+            completed_list.append(event_mac)
+            continue
+
+        if event_qid == assigned_event_qid:
+            device = objects.init_device()
+            device['mac'] = event_mac
+            device['ip'] = event_add
+
+            devices.append(device)
+
+            completed_list.append(event_mac)
+
+            continue
+
+        raise NotImplementedError(f"Received unexpected event qid: {event_qid}")
+
+    return devices
 
 
+def pick_nonempty_addresses(addresses):
+    legit = []
+    for address in addresses:
+        if address not in all_empty:
+            legit.append(address)
+    return legit
 
 
 def get_offenses(router_id: str):
@@ -133,9 +186,6 @@ def get_networks(router_id):
     # parse information into more workable format
     ipv4_source, ipv6_source = sort_ip_addresses(search_results)
 
-    ip4_empty = ['0.0.0.0']
-    ip6_empty = ['0:0:0:0:0:0:0:0']
-    all_empty = ip4_empty + ip6_empty
     ipv4_source = remove_empty(ipv4_source, all_empty)
     ipv6_source = remove_empty(ipv6_source, all_empty)
 
@@ -192,7 +242,8 @@ def decode_payloads(payloads):
 if __name__ == "__main__":
     routers = get_routers()
     print(routers)
-    search_results = search.search(f"SELECT * FROM events LAST 1 HOURS")
-    print(json.dumps(search_results, indent=4))
+    # search_results = search.search(f"SELECT * FROM events LAST 1 HOURS")
+    # print(json.dumps(search_results, indent=4))
     # print(get_all())
-    print(get_networks(routers[0]["id"]))
+    devices = get_devices('162')
+    print(devices)
