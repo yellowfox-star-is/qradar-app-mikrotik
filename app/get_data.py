@@ -1,6 +1,7 @@
 import copy
 import base64
 import logging
+import time
 
 import search
 import json
@@ -16,6 +17,10 @@ ip6_empty = ['0:0:0:0:0:0:0:0']
 mac_empty = ['00:00:00:00:00:00']
 all_empty = ip4_empty + ip6_empty + mac_empty
 
+default_ariel_days = 31
+days_extend = 10
+seconds_in_day = 86400
+
 
 def get_all():
     routers = get_routers()
@@ -29,38 +34,88 @@ def get_all():
     return result
 
 
-def get_qid_record_id(qid_name: str):
+def get_routers():
+    # get response
+    event_source_id = get_event_source_type_id()
     params = {
-        'filter': f'name="{qid_name}"',
-        'Range': 'item=0-49'
+        "filter": f"type_id={event_source_id}"
+    }
+    response = qpylib.REST(rest_action="GET",
+                           request_url="/api/config/event_sources/log_source_management/log_sources",
+                           params=params)
+
+    # parse response
+    data = response.json()
+
+    # take desirable data and put it into list of dictionaries
+    result = []
+    for router in data:
+        new = {
+            "name": copy.deepcopy(router["name"]),
+            "id": copy.deepcopy(router["id"])
+         }
+        result.append(new)
+
+    return result
+
+
+def get_networks(router_id):
+    # get information in which network can be searched
+    network_columns = ['sourceip', 'sourcev6', 'identityip']
+    # XXX CRITICAL ariel pulls events also from remote accesses. it should pull in data only from local events
+    # change it to device assignments or other local events
+    query = f'SELECT {str_with_delimiter(network_columns,",")} FROM events WHERE logsourceid = {router_id} LAST 7 DAYS'
+    search_results = search.search(query)
+
+    # parse information into more workable format
+    ipv4_source, ipv6_source = sort_ip_addresses(search_results)
+
+    ipv4_source = remove_empty(ipv4_source, all_empty)
+    ipv6_source = remove_empty(ipv6_source, all_empty)
+
+    # find a network from ip addresses
+    distance = address_distance('192.168.1.250', '192.168.2.250')
+
+    # XXX TODO I should ask overseer, if it is really smart to do this, it could take very long
+    # so far have a look on devices and offenses
+
+    return None
+
+
+def get_offenses(router_id: str):
+    params = {
+        'filter': f'log_sources contains id={router_id} and status="OPEN"',
+        'Range': 'items=0-49'
     }
     response = qpylib.REST(rest_action='GET',
-                           request_url='/api/data_classification/qid_records',
+                           request_url='/api/siem/offenses',
                            params=params)
     data = response.json()
 
-    if len(data) > 1:
-        logging.warning(f"Received more qid records than expected:\n {data}")
-    if len(data) == 0:
-        logging.error("Didn't receive any qid in API call.")
+    # TODO parse the data more, test when there is an offense
 
-    return data[0]['qid']
+    return data
 
 
 def get_devices(router_id: str):
-    # TODO XXX need to add expendable days, somehow, find what the upper limit is
-    days = 31
     assigned_event_qid = get_qid_record_id("Assigned IP Address")
     deassgined_event_qid = get_qid_record_id("Deassigned IP Address")
-    query = search.search(f'SELECT sourcemac, sourceip, sourcev6, eventid, qid '
-                          f'FROM events '
-                          f'WHERE qid = {assigned_event_qid} '
-                          f'OR qid = {deassgined_event_qid} '
-                          f'ORDER BY startTime DESC '
-                          f'LAST {days} DAYS')
+    days = 0
 
-    if len(query) == 0:
-        return []
+    while True:
+        days, is_max = extend_time(router_id, days)
+        query = search.search(f'SELECT sourcemac, sourceip, sourcev6, eventid, qid '
+                              f'FROM events '
+                              f'WHERE qid = {assigned_event_qid} '
+                              f'OR qid = {deassgined_event_qid} '
+                              f'ORDER BY startTime DESC '
+                              f'LAST {days} DAYS')
+
+        if is_max and len(query) == 0:
+            return []
+        if len(query) != 0:
+            break
+        # Extend Search
 
     devices = []
     completed_list = []
@@ -99,27 +154,46 @@ def get_devices(router_id: str):
     return devices
 
 
+def get_raw(router_id):
+    result = search.search(f'SELECT starttime, endtime, payload '
+                  f'FROM events WHERE logsourceid = {router_id} '
+                  f'ORDER BY startTime DESC '
+                  f'LAST {default_ariel_days} DAYS')
+
+    payloads = process_payloads(result)
+
+    return payloads
+
+
+def make_id(object):
+    jsonstring = json.dumps(object)
+    h = fnv1a_128(jsonstring.encode())
+    return h.hex('-', 2)
+
+def get_qid_record_id(qid_name: str):
+    params = {
+        'filter': f'name="{qid_name}"',
+        'Range': 'item=0-49'
+    }
+    response = qpylib.REST(rest_action='GET',
+                           request_url='/api/data_classification/qid_records',
+                           params=params)
+    data = response.json()
+
+    if len(data) > 1:
+        logging.warning(f"Received more qid records than expected:\n {data}")
+    if len(data) == 0:
+        logging.error("Didn't receive any qid in API call.")
+
+    return data[0]['qid']
+
+
 def pick_nonempty_addresses(addresses):
     legit = []
     for address in addresses:
         if address not in all_empty:
             legit.append(address)
     return legit
-
-
-def get_offenses(router_id: str):
-    params = {
-        'filter': f'log_sources contains id={router_id} and status="OPEN"',
-        'Range': 'items=0-49'
-    }
-    response = qpylib.REST(rest_action='GET',
-                           request_url='/api/siem/offenses',
-                           params=params)
-    data = response.json()
-
-    # TODO parse the data more, test when there is an offense
-
-    return data
 
 
 def get_event_source_type_id():
@@ -141,30 +215,39 @@ def get_event_source_type_id():
     return data[0]["id"]
 
 
-def get_routers():
-    # get response
-    event_source_id = get_event_source_type_id()
-    params = {
-        "filter": f"type_id={event_source_id}"
-    }
+def get_logsource(logsource_id):
     response = qpylib.REST(rest_action="GET",
-                           request_url="/api/config/event_sources/log_source_management/log_sources",
-                           params=params)
+                           request_url=f'/config/event_sources/log_source_management/log_sources/{logsource_id}')
 
-    # parse response
     data = response.json()
 
-    # take desirable data and put it into list of dictionaries
-    result = []
-    for router in data:
-        new = {
-            "name": copy.deepcopy(router["name"]),
-            "id": copy.deepcopy(router["id"])
-         }
-        result.append(new)
+    return data
 
-    return result
 
+def extend_time(router_id, prev_time=0):
+    """
+    Function that extends number of days to search, up to creation date of router.
+    :param router_id: Log source id of router.
+    :param prev_time: Optional. Number of days previously used.
+    :return: int, boolean: number of days, if it is max time
+    """
+    if prev_time == 0:
+        return default_ariel_days, False
+
+    router = get_logsource(router_id)
+
+    new_days = prev_time + days_extend
+
+    curr_time = time.time()
+    creation_time = router['creation_date']
+    search_time = curr_time - new_days * seconds_in_day
+
+    if search_time < creation_time:
+        time_diff = curr_time - creation_time
+        days_diff = int(time_diff / seconds_in_day)
+        return days_diff, True
+
+    return new_days, False
 
 def remove_empty(in_list, empty_examples):
     result_list = []
@@ -173,29 +256,6 @@ def remove_empty(in_list, empty_examples):
         if is_not_in(item, empty_examples):
             result_list.append(item)
     return result_list
-
-
-def get_networks(router_id):
-    # get information in which network can be searched
-    network_columns = ['sourceip', 'sourcev6', 'identityip']
-    # XXX CRITICAL ariel pulls events also from remote accesses. it should pull in data only from local events
-    # change it to device assignments or other local events
-    query = f'SELECT {str_with_delimiter(network_columns,",")} FROM events WHERE logsourceid = {router_id} LAST 7 DAYS'
-    search_results = search.search(query)
-
-    # parse information into more workable format
-    ipv4_source, ipv6_source = sort_ip_addresses(search_results)
-
-    ipv4_source = remove_empty(ipv4_source, all_empty)
-    ipv6_source = remove_empty(ipv6_source, all_empty)
-
-    # find a network from ip addresses
-    distance = address_distance('192.168.1.250', '192.168.2.250')
-
-    # XXX TODO I should ask overseer, if it is really smart to do this, it could take very long
-    # so far have a look on devices and offenses
-
-    return None
 
 
 # REUSED CODE
@@ -227,16 +287,19 @@ def address_distance(ip_address1, ip_address2):
 
 
 # REUSED CODE
-# Generated by ChatGPT, Adapted by Yellow Fox
+# co-developed by ChatGPT and Yellow Fox
 # function that decodes payloads, searched from ariel databases encoded in base64
-# output is saved into a list of strings
-def decode_payloads(payloads):
-    decoded_payloads = []
+# also adds an identifier, so each payload can be identified
+# output is saved into a list of dictionaries
+def process_payloads(payloads):
+    processed_payloads = []
     for event in payloads:
-        payload = base64.b64decode(event["payload"]).decode("utf-8")
-        decoded_payloads.append(payload)
-    return decoded_payloads
-# END OF REUSED CODE
+        payload = {
+            'payload': base64.b64decode(event["payload"]).decode("utf-8"),
+            'id': make_id(event)
+        }
+        processed_payloads.append(payload)
+    return processed_payloads
 
 
 if __name__ == "__main__":
@@ -247,3 +310,4 @@ if __name__ == "__main__":
     # print(get_all())
     devices = get_devices('162')
     print(devices)
+    print(json.dumps(get_raw(162), indent=4))

@@ -61,3 +61,16 @@ def highest_differing_bit(n1: int, n2: int):
         position += 1
         mask <<= 1
     return position
+
+
+def fnv1a_128(data: bytes) -> bytes:
+    FNV_OFFSET_BASIS = 144066263297769815596495629667062367629
+    FNV_PRIME = 309485009821345068724781371
+
+    hash = FNV_OFFSET_BASIS
+    for b in data:
+        hash ^= b
+        hash *= FNV_PRIME
+        hash %= (2**128)
+
+    return hash.to_bytes(16, byteorder='big')
