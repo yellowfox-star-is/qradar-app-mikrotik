@@ -3,12 +3,11 @@ import base64
 import logging
 import time
 
-import search
 import json
-import objects
-from operations import *
-from operations import is_not_in
 from qpylib import qpylib
+
+from . import search, objects
+from .operations import *
 
 event_source_type_name = "Mikrotik RouterOS"
 
@@ -79,7 +78,7 @@ def get_networks(router_id):
     # XXX TODO I should ask overseer, if it is really smart to do this, it could take very long
     # so far have a look on devices and offenses
 
-    return None
+    return []
 
 
 def get_offenses(router_id: str):
@@ -106,8 +105,9 @@ def get_devices(router_id: str):
         days, is_max = extend_time(router_id, days)
         query = search.search(f'SELECT sourcemac, sourceip, sourcev6, eventid, qid '
                               f'FROM events '
-                              f'WHERE qid = {assigned_event_qid} '
-                              f'OR qid = {deassgined_event_qid} '
+                              f'WHERE logsourceid = {router_id} '
+                              f'AND ( qid = {assigned_event_qid} '
+                              f'OR qid = {deassgined_event_qid} ) '
                               f'ORDER BY startTime DESC '
                               f'LAST {days} DAYS')
 
@@ -303,11 +303,5 @@ def process_payloads(payloads):
 
 
 if __name__ == "__main__":
-    routers = get_routers()
-    print(routers)
-    # search_results = search.search(f"SELECT * FROM events LAST 1 HOURS")
-    # print(json.dumps(search_results, indent=4))
-    # print(get_all())
-    devices = get_devices('162')
-    print(devices)
-    print(json.dumps(get_raw(162), indent=4))
+    routers = get_all()
+    print(json.dumps(routers, indent=2))

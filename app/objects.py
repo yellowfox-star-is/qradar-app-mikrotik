@@ -1,6 +1,7 @@
 import json
 import copy
-import random_data
+
+from . import random_data
 
 device = {
     "mac": "",
