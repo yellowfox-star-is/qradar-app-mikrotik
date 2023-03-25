@@ -37,6 +37,8 @@
  <button id="zulli-butt">Zulli! Do the thing!</button>
   <div id="zulli-div"></div>
 
+  <div id="__root">
+  </div>
   
   </body>
 
@@ -49,6 +51,23 @@
         .then((response) => response.json())
         .then((data) => {
           document.getElementById("zulli-div").innerHTML += data.greeting;});
+    }
+    
+    function data_to_element(root_id, json_string) {
+      const data = JSON.parse(json_string);
+      let root_element = document.getElementById(root_id)
+      for (const router in data) {
+        let router_element = document.createElement("button")
+        router_element.className = "accordion"
+        router_element.id = router['name'] + " name"
+        router_element.innerText = router['name']
+        let router_inside = document.createElement("div")
+        router_element.className = "panel"
+        router_element.id = router['name'] + " data"
+        router_element.innerHTML =
+
+        root_element.innerHTML += router_element
+      }
     }
 
   </script>
