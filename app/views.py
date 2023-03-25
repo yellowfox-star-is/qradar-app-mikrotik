@@ -6,7 +6,9 @@
 
 from flask import Blueprint, render_template, current_app, send_from_directory
 from qpylib import qpylib
+
 import json
+import os
 
 from . import get_data
 
@@ -49,7 +51,22 @@ def get_all():
     return json.dumps(data, indent=2)
 
 
-@viewsbp.route('/test_api_call')
+@viewsbp.route('/mock_get')
+def get_all():
+    data = get_data.get_all()
+    return json.dumps(data, indent=2)
+
+
+@viewsbp.route('/test_api')
 def test_api_call():
     response = qpylib.REST('GET', '/api/help/versions', params={'Range': 'items=0-49'})
     return response
+
+
+@viewsbp.route('/playground')
+def playground():
+    to_see = ''
+    # to_see += str(os.environ) + '\n'
+    to_see += os.environ['CURL_CA_BUNDLE'] + '<br>'
+    to_see += os.environ['REQUESTS_CA_BUNDLE']
+    return to_see
