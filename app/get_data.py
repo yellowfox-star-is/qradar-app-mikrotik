@@ -217,7 +217,7 @@ def get_event_source_type_id():
 
 def get_logsource(logsource_id):
     response = qpylib.REST(rest_action="GET",
-                           request_url=f'/config/event_sources/log_source_management/log_sources/{logsource_id}')
+                           request_url=f'/api/config/event_sources/log_source_management/log_sources/{logsource_id}')
 
     data = response.json()
 
@@ -238,8 +238,8 @@ def extend_time(router_id, prev_time=0):
 
     new_days = prev_time + days_extend
 
-    curr_time = time.time()
-    creation_time = router['creation_date']
+    curr_time = int(time.time())
+    creation_time = router['creation_date'] / 1000  # the time is in milliseconds since epoch
     search_time = curr_time - new_days * seconds_in_day
 
     if search_time < creation_time:
