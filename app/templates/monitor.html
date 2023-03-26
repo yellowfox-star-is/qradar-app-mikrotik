@@ -52,21 +52,77 @@
         .then((data) => {
           document.getElementById("zulli-div").innerHTML += data.greeting;});
     }
+
+    function create_top_element(id, name)
+    {
+        let top_element = document.createElement("button")
+        top_element.className = "accordion"
+        top_element.id = id
+        top_element.innerText = name
+        return top_element
+    }
+
+    function create_bot_element(id)
+    {
+        let bot_element = document.createElement("div")
+        bot_element.className = 'panel'
+        bot_element.id = id
+        return bot_element
+    }
+
+    function create_element_pair(id, name)
+    {
+        let top_element = create_top_element(id + "_top", name)
+        let bot_element = create_bot_element(id + "_bot")
+        return [top_element, bot_element]
+    }
+
+    function insert_element_pair(target, pair)
+    {
+        target.innerHTML += pair[0]
+        target.innerHTML += '\n'
+        target.innerHTML += pair[1]
+    }
     
-    function data_to_element(root_id, json_string) {
+    function data_to_element(root_id, json_string)
+    {
       const data = JSON.parse(json_string);
       let root_element = document.getElementById(root_id)
-      for (const router in data) {
-        let router_element = document.createElement("button")
-        router_element.className = "accordion"
-        router_element.id = router['name'] + " name"
-        router_element.innerText = router['name']
-        let router_inside = document.createElement("div")
-        router_element.className = "panel"
-        router_element.id = router['name'] + " data"
-        router_element.innerHTML =
+      for (const router in data)
+      {
+          let router_name = router['name']
 
-        root_element.innerHTML += router_element
+          // prepare networks
+          let networks_elements = create_element_pair(router_name + "_networks", 'Networks')
+          for (const address in router['networks']) networks_elements[1].innerHTML += address + "<br>"
+
+          // prepare offenses
+          let offenses_elements = create_element_pair(router_name + "_offenses", "Offenses")
+          for (const offense in router["offenses"])
+          {
+              // TODO add some totally superb processing here
+              continue
+          }
+
+          // prepare devices
+          let devices_elements = create_element_pair(router_name + '_devices', "Devices")
+          for (const device in router["devices"])
+          {
+              let IP_adds = ""
+              for (const add in device['ip']) IP_adds += add + " "
+              devices_elements[1].innerHTML += "MAC: " + device["mac"] + "<br>IP: " + IP_adds + "<br>"
+          }
+
+          // create router
+          let router_elements = create_element_pair(router_name, router_name)
+
+          // fill router
+          insert_element_pair(router_elements[1], networks_elements)
+          insert_element_pair(router_elements[1], offenses_elements)
+          insert_element_pair(router_elements[1], devices_elements)
+
+          // wrap it up by inserting into target
+          insert_element_pair(root_element, router_elements)
       }
     }
 

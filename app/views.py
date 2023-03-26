@@ -52,32 +52,14 @@ def get_all():
 
 
 @viewsbp.route('/mock_get')
-def get_all():
-    data = \
-        '''
-    [
-        {
-            "name": "Testing MikroTik",
-            "networks": [],
-            "offenses": [],
-            "devices": []
-        },
-        {
-            "name": "Testing MikroTik (Direct)",
-            "networks": ["192.168.88.1"],
-            "offenses": [],
-            "devices": [
-                {
-                    "mac": "08:00:27:01:27:15",
-                    "ip": [
-                        "192.168.88.244"
-                    ]
-                }
-            ]
-        }
-    ]
-'''
-    return json.dumps(data, indent=2)
+def mock_get():
+    data = '[ { "name": "Testing MikroTik",' \
+           '"networks": [], "offenses": [], "devices": [] },' \
+           '{ "name": "Testing MikroTik (Direct)",' \
+           '"networks": ["192.168.88.1"],' \
+           '"offenses": [],' \
+           '"devices": [ { "mac": "08:00:27:01:27:15", "ip": [ "192.168.88.244" ] } ] } ]'
+    return data
 
 
 @viewsbp.route('/test_api')
