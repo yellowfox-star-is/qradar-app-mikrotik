@@ -87,6 +87,11 @@
         target.appendChild(pair[0])
         target.appendChild(pair[1])
     }
+
+    function update_number(target_element, new_number) {
+        target_element.innerText.replace("^\\d+? +", '')
+        target_element.innerText = new_number + " " + target_element.innerText
+    }
     
     function create_monitor_elements(root_id, json_string)
     {
@@ -97,11 +102,13 @@
           let router_name = router['name']
 
           // prepare networks
-          let networks_elements = create_element_pair(router_name + "_networks", router["networks"].length + ' Networks')
+          let networks_elements = create_element_pair(router_name + "_networks", 'Networks')
+          update_number(networks_elements[1], router['networks'].length)
           for (const address of router['networks']) networks_elements[1].innerHTML += address + "<br>"
 
           // prepare offenses
-          let offenses_elements = create_element_pair(router_name + "_offenses", router["offenses"].length + " Offenses")
+          let offenses_elements = create_element_pair(router_name + "_offenses", "Offenses")
+          update_number(router_elements[1], router['offenses'].length)
           for (const offense of router["offenses"])
           {
               // TODO add some totally superb processing here
@@ -109,7 +116,8 @@
           }
 
           // prepare devices
-          let devices_elements = create_element_pair(router_name + '_devices', router["devices"].length + " Devices")
+          let devices_elements = create_element_pair(router_name + '_devices', "Devices")
+          update_number(devices_elements[1], router['devices'].length)
           for (const device of router["devices"])
           {
               let IP_adds = ""
