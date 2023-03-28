@@ -43,7 +43,7 @@
   </body>
 
   <script>
-    document.getElementById("zulli-butt").onclick = function() {zulli()};
+    document.getElementById("zulli-butt").onclick = function() {update_router_elements("__root", '[ { "name": "Testing MikroTik","networks": ["192.168.102.1"], "offenses": [], "devices": [] },{ "name": "Testing MikroTik (Direct)","networks": ["192.168.88.1"],"offenses": [],"devices": [ { "mac": "08:00:27:01:27:15", "ip": [ "192.168.88.244" ] } ] } ]')};
 
     function zulli()
     {
@@ -54,7 +54,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-        create_monitor_elements('__root', '[ { "name": "Testing MikroTik","networks": [], "offenses": [], "devices": [] },{ "name": "Testing MikroTik (Direct)","networks": ["192.168.88.1"],"offenses": [],"devices": [ { "mac": "08:00:27:01:27:15", "ip": [ "192.168.88.244" ] } ] } ]')
+        create_router_elements('__root', '[ { "name": "Testing MikroTik","networks": [], "offenses": [], "devices": [] },{ "name": "Testing MikroTik (Direct)","networks": ["192.168.88.1"],"offenses": [],"devices": [ { "mac": "08:00:27:01:27:15", "ip": [ "192.168.88.244" ] } ] } ]')
     });
 
     function create_top_element(id, name)
@@ -92,23 +92,18 @@
         target_element.innerText.replace("^\\d+? +", '')
         target_element.innerText = new_number + " " + target_element.innerText
     }
-    
-    function create_monitor_elements(root_id, json_string)
-    {
-      const data = JSON.parse(json_string);
-      let root_element = document.getElementById(root_id)
-      for (const router of data)
-      {
-          let router_name = router['name']
+
+    function create_router(root_element, router) {
+        let router_name = router['name']
 
           // prepare networks
           let networks_elements = create_element_pair(router_name + "_networks", 'Networks')
-          update_number(networks_elements[1], router['networks'].length)
+          update_number(networks_elements[0], router['networks'].length)
           for (const address of router['networks']) networks_elements[1].innerHTML += address + "<br>"
 
           // prepare offenses
           let offenses_elements = create_element_pair(router_name + "_offenses", "Offenses")
-          update_number(router_elements[1], router['offenses'].length)
+          update_number(offenses_elements[0], router['offenses'].length)
           for (const offense of router["offenses"])
           {
               // TODO add some totally superb processing here
@@ -117,7 +112,7 @@
 
           // prepare devices
           let devices_elements = create_element_pair(router_name + '_devices', "Devices")
-          update_number(devices_elements[1], router['devices'].length)
+          update_number(devices_elements[0], router['devices'].length)
           for (const device of router["devices"])
           {
               let IP_adds = ""
@@ -135,6 +130,63 @@
 
           // wrap it up by inserting into target
           insert_element_pair(root_element, router_elements)
+    }
+    
+    function create_router_elements(root_id, json_string)
+    {
+      const data = JSON.parse(json_string);
+      let root_element = document.getElementById(root_id)
+      for (const router of data)
+      {
+          create_router(root_element, router)
+      }
+    }
+
+    function update_router(router) {
+      let router_name = router['name']
+      let router_element = document.getElementById(router_name)
+
+      // update networks
+      let networks_element = router_element.querySelector('#' + router_name + '_networks_bot')
+      update_number(networks_element, router['networks'].length)
+      networks_element.innerHTML = ''
+      for (const address of router['networks']) networks_element.innerHTML += address + "<br>"
+
+      // update offenses
+      let offenses_element = router_element.querySelector('#' + router_name + '_offenses_bot')
+      update_number(offenses_element, router['offenses'].length)
+      offenses_element.innerHTML = '' // clear previous offenses
+      for (const offense of router["offenses"])
+      {
+          // TODO add some totally superb processing here
+          continue
+      }
+
+      // update devices
+      let devices_element = router_element.querySelector('#' + router_name + '_devices_bot')
+      update_number(devices_element, router['devices'].length)
+      devices_element.innerHTML = '' // clear previous devices
+      for (const device of router["devices"])
+      {
+          let IP_adds = ""
+          for (const add of device['ip']) IP_adds += add + " "
+          devices_element.innerHTML += "MAC: " + device["mac"] + "<br>IP: " + IP_adds + "<br>"
+      }
+    }
+
+    function update_router_elements(root_id, json_string) {
+        const data = JSON.parse(json_string);
+      let root_element = document.getElementById(root_id)
+      for (const router of data)
+      {
+          if (document.getElementById(router["name"]))
+          {
+              update_router(root_element, router)
+          }
+          else
+          {
+              create_router(root_element, router)
+          }
       }
     }
   </script>
