@@ -6,7 +6,7 @@
   </head>
 
   <body>
-  
+  <!--
   <h2>Accordion</h2>
   
   <button class="accordion">Section 1</button>
@@ -33,6 +33,7 @@
       MAC address: XX-XX-XX-XX-XX-XX
     </div>
   </div>
+  --->
   
  <button id="zulli-butt">Zulli! Do the thing!</button>
   <div id="zulli-div"></div>
@@ -75,10 +76,13 @@
         return bot_element
     }
 
+    var top_suffix = "_top"
+    var bot_suffix = "_bot"
+
     function create_element_pair(id, name)
     {
-        let top_element = create_top_element(id + "_top", name)
-        let bot_element = create_bot_element(id + "_bot")
+        let top_element = create_top_element(id + top_suffix, name)
+        let bot_element = create_bot_element(id + bot_suffix)
         return [top_element, bot_element]
     }
 
@@ -89,7 +93,7 @@
     }
 
     function update_number(target_element, new_number) {
-        target_element.innerText.replace("^\\d+? +", '')
+        target_element.innerText = target_element.innerText.replace(/^\d+?\s+/, '')
         target_element.innerText = new_number + " " + target_element.innerText
     }
 
@@ -142,19 +146,19 @@
       }
     }
 
-    function update_router(router) {
+    function update_router(root_element, router) {
       let router_name = router['name']
-      let router_element = document.getElementById(router_name)
+      let router_element = get_router_element_bot(router_name)
 
       // update networks
-      let networks_element = router_element.querySelector('#' + router_name + '_networks_bot')
-      update_number(networks_element, router['networks'].length)
+      let networks_element = document.getElementById(router_name + '_networks_bot')
+      update_number(document.getElementById(router_name + '_networks_top'), router['networks'].length)
       networks_element.innerHTML = ''
       for (const address of router['networks']) networks_element.innerHTML += address + "<br>"
 
       // update offenses
-      let offenses_element = router_element.querySelector('#' + router_name + '_offenses_bot')
-      update_number(offenses_element, router['offenses'].length)
+      let offenses_element = document.getElementById(router_name + '_offenses_bot')
+      update_number(document.getElementById(router_name + '_offenses_top'), router['offenses'].length)
       offenses_element.innerHTML = '' // clear previous offenses
       for (const offense of router["offenses"])
       {
@@ -163,8 +167,8 @@
       }
 
       // update devices
-      let devices_element = router_element.querySelector('#' + router_name + '_devices_bot')
-      update_number(devices_element, router['devices'].length)
+      let devices_element = document.getElementById(router_name + '_devices_bot')
+      update_number(document.getElementById(router_name + '_devices_top'), router['devices'].length)
       devices_element.innerHTML = '' // clear previous devices
       for (const device of router["devices"])
       {
@@ -174,12 +178,27 @@
       }
     }
 
+    function get_router_element_top(router_name)
+    {
+        return document.getElementById(router_name + top_suffix)
+    }
+
+    function get_router_element_bot(router_name)
+    {
+        return document.getElementById(router_name + bot_suffix)
+    }
+
+    function get_router_elements(router_name) {
+        let router_el_top = get_router_element_top(router_name)
+        let router_el_bot = get_router_element_bot(router_name)
+    }
+
     function update_router_elements(root_id, json_string) {
         const data = JSON.parse(json_string);
       let root_element = document.getElementById(root_id)
       for (const router of data)
       {
-          if (document.getElementById(router["name"]))
+          if (get_router_element_top(router['name']))
           {
               update_router(root_element, router)
           }
