@@ -20,6 +20,8 @@ default_ariel_days = 31
 days_extend = 10
 seconds_in_day = 86400
 
+VERIFY = False
+
 
 def get_all():
     routers = get_routers()
@@ -41,7 +43,8 @@ def get_routers():
     }
     response = qpylib.REST(rest_action="GET",
                            request_url="/api/config/event_sources/log_source_management/log_sources",
-                           params=params)
+                           params=params,
+                           verify=VERIFY)
 
     # parse response
     data = response.json()
@@ -88,7 +91,8 @@ def get_offenses(router_id: str):
     }
     response = qpylib.REST(rest_action='GET',
                            request_url='/api/siem/offenses',
-                           params=params)
+                           params=params,
+                           verify=VERIFY)
     data = response.json()
 
     # TODO parse the data more, test when there is an offense
@@ -177,7 +181,8 @@ def get_qid_record_id(qid_name: str):
     }
     response = qpylib.REST(rest_action='GET',
                            request_url='/api/data_classification/qid_records',
-                           params=params)
+                           params=params,
+                           verify=VERIFY)
     data = response.json()
 
     if len(data) > 1:
@@ -204,7 +209,8 @@ def get_event_source_type_id():
     }
     response = qpylib.REST(rest_action='GET',
                            request_url='/api/config/event_sources/log_source_management/log_source_types',
-                           params=params)
+                           params=params,
+                           verify=VERIFY)
 
     # parse response
     data = response.json()
@@ -217,7 +223,8 @@ def get_event_source_type_id():
 
 def get_logsource(logsource_id):
     response = qpylib.REST(rest_action="GET",
-                           request_url=f'/api/config/event_sources/log_source_management/log_sources/{logsource_id}')
+                           request_url=f'/api/config/event_sources/log_source_management/log_sources/{logsource_id}',
+                           verify=VERIFY)
 
     data = response.json()
 

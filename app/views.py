@@ -64,8 +64,8 @@ def mock_get():
 
 @viewsbp.route('/test_api')
 def test_api_call():
-    response = qpylib.REST('GET', '/api/help/versions', params={'Range': 'items=0-49'})
-    return response
+    response = qpylib.REST('GET', '/api/help/versions', params={'Range': 'items=0-49'}, verify=False)
+    return json.dumps(response.json())
 
 
 @viewsbp.route('/playground')
@@ -74,4 +74,5 @@ def playground():
     # to_see += str(os.environ) + '\n'
     to_see += os.environ['CURL_CA_BUNDLE'] + '<br>'
     to_see += os.environ['REQUESTS_CA_BUNDLE']
+    to_see += json.dumps(get_data.get_raw(162))
     return to_see
