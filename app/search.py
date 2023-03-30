@@ -1,7 +1,7 @@
 import time
 
 import requests, json, logging, sys
-from .custom_ariel import ArielSearch, ArielError
+from custom_ariel import ArielSearch, ArielError
 
 ariel = ArielSearch()
 

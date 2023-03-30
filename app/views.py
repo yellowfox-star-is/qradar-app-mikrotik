@@ -10,7 +10,7 @@ from qpylib import qpylib
 import json
 import os
 
-from . import get_data
+import get_data
 
 # pylint: disable=invalid-name
 viewsbp = Blueprint('viewsbp', __name__, url_prefix='/')
@@ -39,19 +39,19 @@ def monitor():
     return render_template('monitor.html')
 
 
-@app.route('/test_func')
+@app.route('/test/func')
 def test_func():
     message = {'greeting': 'Hello from Flask!'}
     return json.dumps(message)
 
 
-@viewsbp.route('/get_all')
+@viewsbp.route('/get/all')
 def get_all():
     data = get_data.get_all()
     return json.dumps(data, indent=2)
 
 
-@viewsbp.route('/mock_get')
+@viewsbp.route('/get/mock')
 def mock_get():
     data = '[ { "name": "Testing MikroTik",' \
            '"networks": [], "offenses": [], "devices": [] },' \
@@ -62,10 +62,16 @@ def mock_get():
     return data
 
 
-@viewsbp.route('/test_api')
+@viewsbp.route('/test/api')
 def test_api_call():
     response = qpylib.REST('GET', '/api/help/versions', params={'Range': 'items=0-49'}, verify=False)
     return json.dumps(response.json())
+
+
+@viewsbp.route('/test/import')
+def test_imports():
+    import objects
+    return json.dumps(objects.init_device())
 
 
 @viewsbp.route('/playground')

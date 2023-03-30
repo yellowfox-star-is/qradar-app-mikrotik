@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import time
-from . import qpylib
+from qpylib import qpylib
 
 VERIFY = False
 

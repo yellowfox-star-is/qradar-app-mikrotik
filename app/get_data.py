@@ -1,13 +1,13 @@
-import copy
 import base64
+import json
 import logging
 import time
 
-import json
 from qpylib import qpylib
+import requests
 
-from . import search, objects
-from .operations import *
+import objects, search
+from operations import *
 
 event_source_type_name = "Mikrotik RouterOS"
 
@@ -310,5 +310,4 @@ def process_payloads(payloads):
 
 
 if __name__ == "__main__":
-    routers = get_all()
-    print(json.dumps(routers, indent=2))
+    print(json.dumps(get_raw(162), indent=2))
