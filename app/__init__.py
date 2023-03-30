@@ -52,7 +52,4 @@ def create_app():
     from . import dev
     qflask.register_blueprint(dev.devbp)
 
-    certificate_path = '/opt/app-root/store/certificate_fix.crt'
-    subprocess.run(f'openssl s_client -showcerts -connect $QRADAR_CONSOLE_FQDN:443 </dev/null 2>/dev/null | openssl x509 -outform PEM > {certificate_path}', shell=True)
-
     return qflask
