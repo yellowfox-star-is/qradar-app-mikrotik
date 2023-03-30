@@ -21,7 +21,7 @@ days_extend = 10
 seconds_in_day = 86400
 
 VERIFY = False
-
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 def get_all():
     routers = get_routers()
