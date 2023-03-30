@@ -9,6 +9,7 @@ from qpylib import qpylib
 
 import json
 import os
+import html
 
 import get_data
 
@@ -78,7 +79,5 @@ def test_imports():
 def playground():
     to_see = ''
     # to_see += str(os.environ) + '\n'
-    to_see += os.environ['CURL_CA_BUNDLE'] + '<br>'
-    to_see += os.environ['REQUESTS_CA_BUNDLE']
-    to_see += json.dumps(get_data.get_raw(162))
+    to_see += html.escape(json.dumps(get_data.get_raw(162), indent=2)).replace('\n', '<br>')
     return to_see

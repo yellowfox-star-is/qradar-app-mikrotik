@@ -2,6 +2,7 @@ import base64
 import json
 import logging
 import time
+import re
 
 from qpylib import qpylib
 import requests
@@ -172,7 +173,9 @@ def get_raw(router_id):
 def make_id(object):
     jsonstring = json.dumps(object)
     h = fnv1a_128(jsonstring.encode())
-    return h.hex('-', 2)
+    unformatted_hex = h.hex()
+    formatted_hex = '-'.join(re.findall('.{4}', unformatted_hex))
+    return formatted_hex
 
 def get_qid_record_id(qid_name: str):
     params = {
@@ -303,11 +306,12 @@ def process_payloads(payloads):
     for event in payloads:
         payload = {
             'payload': base64.b64decode(event["payload"]).decode("utf-8"),
-            'id': make_id(event)
+            'event_id': make_id(event)
         }
         processed_payloads.append(payload)
     return processed_payloads
 
 
 if __name__ == "__main__":
-    print(json.dumps(get_raw(162), indent=2))
+    print(make_id(["ksjfnsoejnoisn"]))
+    # print(json.dumps(get_raw(162), indent=2))
