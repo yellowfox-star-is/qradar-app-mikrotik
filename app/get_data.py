@@ -3,6 +3,7 @@ import json
 import logging
 import time
 import re
+import datetime
 
 from qpylib import qpylib
 import requests
@@ -306,7 +307,8 @@ def process_payloads(payloads):
     for event in payloads:
         payload = {
             'payload': base64.b64decode(event["payload"]).decode("utf-8"),
-            'id': make_id(event)
+            'id': make_id(event),
+            'timestamp': event['starttime']
         }
         processed_payloads.append(payload)
     return processed_payloads
