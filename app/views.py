@@ -18,6 +18,11 @@ viewsbp = Blueprint('viewsbp', __name__, url_prefix='/')
 app = viewsbp
 
 
+def pass_data(objects):
+    json_string = json.dumps(objects)
+    return json_string
+
+
 # A simple "Hello" endpoint that demonstrates use of render_template
 # and qpylib logging.
 @viewsbp.route('/')
@@ -48,8 +53,17 @@ def test_func():
 
 @viewsbp.route('/get/all')
 def get_all():
-    data = get_data.get_all()
-    return json.dumps(data, indent=2)
+    return pass_data(get_data.get_all())
+
+
+@viewsbp.route('/get/routers')
+def get_routers():
+    return pass_data(get_data.get_routers())
+
+
+@viewsbp.route('/get/raw/<routerid>')
+def get_raw(routerid=None):
+    return pass_data(get_data.get_raw(routerid))
 
 
 @viewsbp.route('/get/mock')
@@ -79,5 +93,7 @@ def test_imports():
 def playground():
     to_see = ''
     # to_see += str(os.environ) + '\n'
-    to_see += html.escape(json.dumps(get_data.get_raw(162), indent=2)).replace('\n', '<br>')
+    to_see += json.dumps(get_data.get_raw(162), indent=2)
+
+    to_see = html.escape(to_see).replace('\n', '<br>')
     return to_see

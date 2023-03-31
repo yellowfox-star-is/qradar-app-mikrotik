@@ -306,7 +306,7 @@ def process_payloads(payloads):
     for event in payloads:
         payload = {
             'payload': base64.b64decode(event["payload"]).decode("utf-8"),
-            'event_id': make_id(event)
+            'id': make_id(event)
         }
         processed_payloads.append(payload)
     return processed_payloads
