@@ -66,6 +66,11 @@ def get_raw(routerid=None):
     return pass_data(get_data.get_raw(routerid))
 
 
+@viewsbp.route('/get/timeline/<routerid>')
+def get_timeline(routerid=None):
+    return pass_data(get_data.get_timeline(routerid))
+
+
 @viewsbp.route('/get/mock')
 def mock_get():
     data = '[ { "name": "Testing MikroTik",' \

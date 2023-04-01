@@ -167,6 +167,33 @@ def get_raw(router_id):
                   f'LAST {default_ariel_days} DAYS')
 
     payloads = process_payloads(result)
+    copy_from_dict_to_dict(result, payloads, 'starttime', 'timestamp')
+
+    return payloads
+
+
+def populate_qid(payloads):
+    resolved_qids = {}
+    for i in range(len(payloads)):
+        qid = payloads[i]['qid']
+
+        if qid not in resolved_qids:
+            qid_record = get_gid_record(qid)
+            resolved_qids[qid] = copy.deepcopy(qid_record)
+
+        payloads[i]['name'] = resolved_qids[qid]['name']
+        payloads[i]['description'] = resolved_qids[qid]['description']
+
+
+def get_timeline(router_id):
+    result = search.search(f'SELECT starttime, endtime, qid, payload FROM events '
+                           f'WHERE logsourceid = {router_id} '
+                           f'ORDER BY startTime DESC LAST {default_ariel_days} DAYS')
+
+    payloads = process_payloads(result)
+    copy_from_dict_to_dict(result, payloads, 'starttime', 'timestamp')
+    copy_from_dict_to_dict(result, payloads, 'qid')
+    populate_qid(payloads)
 
     return payloads
 
@@ -177,6 +204,7 @@ def make_id(object):
     unformatted_hex = h.hex()
     formatted_hex = '-'.join(re.findall('.{4}', unformatted_hex))
     return formatted_hex
+
 
 def get_qid_record_id(qid_name: str):
     params = {
@@ -195,6 +223,19 @@ def get_qid_record_id(qid_name: str):
         logging.error("Didn't receive any qid in API call.")
 
     return data[0]['qid']
+
+
+def get_gid_record(qid):
+    params = {
+        'filter': f'qid="{qid}"',
+        'Range': 'item=0-49'
+    }
+    response = qpylib.REST(rest_action='GET',
+                           request_url='/api/data_classification/qid_records',
+                           params=params,
+                           verify=VERIFY)
+    data = response.json()
+    return data[0]
 
 
 def pick_nonempty_addresses(addresses):
@@ -260,6 +301,7 @@ def extend_time(router_id, prev_time=0):
 
     return new_days, False
 
+
 def remove_empty(in_list, empty_examples):
     result_list = []
     for item in in_list:
@@ -297,6 +339,16 @@ def address_distance(ip_address1, ip_address2):
     return differing_bit_position
 
 
+def copy_from_dict_to_dict(dict1, dict2, key1, key2=None):
+    if len(dict1) != len(dict2):
+        raise NotImplementedError('Dictionary length is not same')
+    if key2 is None:
+        key2 = key1
+    length = len(dict1)
+    for i in range(length):
+        dict2[i][key2] = copy.deepcopy(dict1[i][key1])
+
+
 # REUSED CODE
 # co-developed by ChatGPT and Yellow Fox
 # function that decodes payloads, searched from ariel databases encoded in base64
@@ -307,8 +359,7 @@ def process_payloads(payloads):
     for event in payloads:
         payload = {
             'payload': base64.b64decode(event["payload"]).decode("utf-8"),
-            'id': make_id(event),
-            'timestamp': event['starttime']
+            'id': make_id(str(event['payload']) + str(event['starttime']) + str(event['endtime'])),
         }
         processed_payloads.append(payload)
     return processed_payloads
@@ -316,4 +367,7 @@ def process_payloads(payloads):
 
 if __name__ == "__main__":
     print(make_id(["ksjfnsoejnoisn"]))
+    print(get_gid_record(1002250012))
+    print(get_raw(162))
+    print(get_timeline(162))
     # print(json.dumps(get_raw(162), indent=2))
