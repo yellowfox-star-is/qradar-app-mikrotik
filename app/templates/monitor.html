@@ -3,6 +3,9 @@
 <head>
     <title>MikroTik Monitor</title>
     <link href="static/styles.css" rel="stylesheet">
+    <link href="static/horizontal_timeline.css" rel="stylesheet">
+
+    <script src="{{ url_for('static', filename='jquery.js') }}"></script>
 </head>
 
 <body>
@@ -40,10 +43,13 @@
 
 <div id="__root" onload="load_data()">
 </div>
+<div class="tl"></div>
+<div class="tl"></div>
 
 </body>
 
 <script src="{{ url_for('static', filename='log_visualization.js') }}"></script>
+<script src="{{ url_for('static', filename='horizontal_timeline.js') }}"></script>
 
 <script>
     document.getElementById("zulli-butt").onclick = function () {
