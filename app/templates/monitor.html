@@ -1,59 +1,61 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>MikroTik Monitor</title>
     <link href="static/styles.css" rel="stylesheet">
-  </head>
+</head>
 
-  <body>
-  <!--
-  <h2>Accordion</h2>
-  
-  <button class="accordion">Section 1</button>
+<body>
+<!--
+<h2>Accordion</h2>
+
+<button class="accordion">Section 1</button>
+<div class="panel">
+  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+</div>
+
+<button class="accordion">Section 2</button>
+<div class="panel">
+  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+</div>
+
+<button class="accordion">Section 3</button>
+<div class="panel">
+  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+</div>
+
+<button class="accordion">Legit Router</button>
+<div class="panel">
+  <button class="accordion">Legit Device</button>
   <div class="panel">
-    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+    IP address: 192.168.XXX.XXX
+    <br>
+    MAC address: XX-XX-XX-XX-XX-XX
   </div>
-  
-  <button class="accordion">Section 2</button>
-  <div class="panel">
-    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-  </div>
-  
-  <button class="accordion">Section 3</button>
-  <div class="panel">
-    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-  </div>
+</div>
+--->
 
-  <button class="accordion">Legit Router</button>
-  <div class="panel">
-    <button class="accordion">Legit Device</button>
-    <div class="panel">
-      IP address: 192.168.XXX.XXX
-      <br>
-      MAC address: XX-XX-XX-XX-XX-XX
-    </div>
-  </div>
-  --->
-  
- <button id="zulli-butt">Zulli! Do the thing!</button>
-  <div id="zulli-div"></div>
+<button id="zulli-butt">Zulli! Do the thing!</button>
+<div id="zulli-div"></div>
 
-  <div id="__root" onload="load_data()">
-  </div>
+<div id="__root" onload="load_data()">
+</div>
 
-  <script src="{{ url_for('static', filename='log_visualization.js') }}"></script>
-  
-  </body>
+</body>
 
-  <script>
-    document.getElementById("zulli-butt").onclick = function() {update_raw_containers()};
+<script src="{{ url_for('static', filename='log_visualization.js') }}"></script>
 
-    function zulli()
-    {
-      fetch('/test_func')
-        .then((response) => response.json())
-        .then((data) => {
-          document.getElementById("zulli-div").innerHTML += data.greeting;});
+<script>
+    document.getElementById("zulli-butt").onclick = function () {
+        update_raw_containers()
+    };
+
+    function zulli() {
+        fetch('/test_func')
+            .then((response) => response.json())
+            .then((data) => {
+                document.getElementById("zulli-div").innerHTML += data.greeting;
+            });
     }
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -61,11 +63,10 @@
     });
 
 
-  </script>
+</script>
 
 <style>
-    .raw_container
-    {
+    .raw_container {
         height: 300px;
         overflow: auto;
     }
@@ -79,62 +80,55 @@ Date: 10. 03. 2023
 -->
 
 <style>
-  .accordion
-  {
-    background-color: white;
-    color: #444;
-    cursor: pointer;
-    padding: 2px;
-    width: 100%;
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;
-    transition: 0.4s;
-  }
-  
-  .active, .accordion:hover
-  {
-    background-color: #ccc; 
-  }
-  
-  .panel
-  {
-    padding: 0 20px;
-    display: none;
-    background-color: white;
-    overflow: hidden;
+    .accordion {
+        background-color: white;
+        color: #444;
+        cursor: pointer;
+        padding: 2px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+        transition: 0.4s;
+    }
+
+    .active, .accordion:hover {
+        background-color: #ccc;
+    }
+
+    .panel {
+        padding: 0 20px;
+        display: none;
+        background-color: white;
+        overflow: hidden;
 
 
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;
-  }
-  </style>
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+    }
+</style>
 
 <script>
 
     function accordion_collapse() {
-    this.classList.toggle("active");
-    let panel = this.nextElementSibling;
-    if (panel.style.display === "block")
-    {
-        panel.style.display = "none";
-    }
-    else
-    {
-        panel.style.display = "block";
-    }
+        this.classList.toggle("active");
+        let panel = this.nextElementSibling;
+        if (panel.style.display === "block") {
+            panel.style.display = "none";
+        } else {
+            panel.style.display = "block";
+        }
     }
 
-  var acc = document.getElementsByClassName("accordion");
-  var i;
-  
-  for (i = 0; i < acc.length; i++)
-  {
-    acc[i].addEventListener("click", accordion_collapse);
-  }
+    var acc = document.getElementsByClassName("accordion");
+    var i;
+
+    for (i = 0; i < acc.length; i++) {
+        acc[i].addEventListener("click", accordion_collapse);
+    }
 </script>
 
 <!-- END OF REUSED CODE -->
