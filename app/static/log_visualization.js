@@ -2,6 +2,7 @@ var top_affix = "_top"
 var bot_affix = "_bot"
 var raw_affix = "_raw"
 var offenses_affix = "_offenses"
+var timeline_affix = "_timeline"
 const nbsp = String.fromCharCode(160);
 
 function create_top_element(id, name)
@@ -58,12 +59,14 @@ function create_router(root_element, router)
     // prepare raw
     let raw_elements = create_raw_elements(router_name)
 
+    let timeline_elemets = create_element_pair(router_name + timeline_affix, 'Timeline')
+
     // create router
     let router_elements = create_element_pair(router_name, router_name)
 
     // fill router
-    insert_element_pair(router_elements[1], offenses_elements)
     insert_element_pair(router_elements[1], raw_elements)
+    insert_element_pair(router_elements[1], offenses_elements)
 
     // wrap it up by inserting into target
     insert_element_pair(root_element, router_elements)
@@ -213,4 +216,13 @@ function update_raw_containers()
                 update_raw_container(router)
             }
         })
+}
+
+function make_timeline(router_name, target_element_id, data) {
+    let target_element = document.getElementById(target_element_id)
+
+    let timeline_element = document.createElement('div')
+    timeline_element.classList.add('tl')
+    timeline_element.timeline(data)
+    target_element.appendChild(timeline_element)
 }
