@@ -186,16 +186,45 @@ def populate_qid(payloads):
 
 
 def get_timeline(router_id):
+    end_timestamp = int(time.time())
+
+    search_days = default_ariel_days
     result = search.search(f'SELECT starttime, endtime, qid, payload FROM events '
                            f'WHERE logsourceid = {router_id} '
-                           f'ORDER BY startTime DESC LAST {default_ariel_days} DAYS')
+                           f'ORDER BY startTime DESC LAST {search_days} DAYS')
+
+    start_timestamp = end_timestamp - search_days * seconds_in_day
 
     payloads = process_payloads(result)
     copy_from_dict_to_dict(result, payloads, 'starttime', 'timestamp')
     copy_from_dict_to_dict(result, payloads, 'qid')
     populate_qid(payloads)
 
-    return payloads
+    offenses = get_offenses(router_id)
+
+    formatted_timeline = format_to_timeline(start_timestamp, end_timestamp, payloads, offenses)
+
+    return formatted_timeline
+
+
+def format_to_timeline(start_timestamp, end_timestamp, payloads, offenses):
+    line_events = objects.TimelineLine('Events', 'events')
+    line_events.events = [objects.TimelineEvent(n['timestamp'], n['payload']) for n in payloads]
+
+    objects.TimelineEvent.reset_id()
+    line_offenses = objects.TimelineLine('Offenses', 'offenses')
+    line_offenses.events = [objects.TimelineEvent(n['timestamp'], n['TODO']) for n in offenses]
+
+    data = {
+        "start_time": start_timestamp,
+        "stop_time": end_timestamp,
+        "lines": {
+            "events": line_events.to_dict(),
+            "offenses": line_offenses.to_dict()
+        }
+    }
+
+    return data
 
 
 def make_id(object):
