@@ -218,10 +218,7 @@ def format_to_timeline(start_timestamp, end_timestamp, payloads, offenses):
     data = {
         "start_time": start_timestamp,
         "stop_time": end_timestamp,
-        "lines": {
-            "events": line_events.to_dict(),
-            "offenses": line_offenses.to_dict()
-        }
+        "lines": [line_events.to_dict(), line_offenses.to_dict()]
     }
 
     return data
@@ -395,8 +392,8 @@ def process_payloads(payloads):
 
 
 if __name__ == "__main__":
-    print(make_id(["ksjfnsoejnoisn"]))
-    print(get_gid_record(1002250012))
-    print(get_raw(162))
+    #print(make_id(["ksjfnsoejnoisn"]))
+    #print(get_gid_record(1002250012))
+    #print(get_raw(162))
     print(get_timeline(162))
     # print(json.dumps(get_raw(162), indent=2))
