@@ -47,12 +47,13 @@
 
 </body>
 
-<script src="{{ url_for('static', filename='log_visualization.js') }}"></script>
 <script src="{{ url_for('static', filename='horizontal_timeline.js') }}"></script>
+<script src="{{ url_for('static', filename='log_visualization.js') }}"></script>
 
 <script>
     document.getElementById("zulli-butt").onclick = function () {
         update_raw_containers()
+        make_timelines()
     };
 
     function zulli() {
