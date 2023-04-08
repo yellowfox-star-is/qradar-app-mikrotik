@@ -21,6 +21,7 @@ all_empty = ip4_empty + ip6_empty + mac_empty
 default_ariel_days = 31
 days_extend = 10
 seconds_in_day = 86400
+milliseconds_in_day = seconds_in_day * 1000
 
 VERIFY = False
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
@@ -186,14 +187,14 @@ def populate_qid(payloads):
 
 
 def get_timeline(router_id):
-    end_timestamp = int(time.time())
+    end_timestamp = int(time_ms())
 
     search_days = default_ariel_days
     result = search.search(f'SELECT starttime, endtime, qid, payload FROM events '
                            f'WHERE logsourceid = {router_id} '
                            f'ORDER BY startTime DESC LAST {search_days} DAYS')
 
-    start_timestamp = end_timestamp - search_days * seconds_in_day
+    start_timestamp = end_timestamp - search_days * milliseconds_in_day
 
     payloads = process_payloads(result)
     copy_from_dict_to_dict(result, payloads, 'starttime', 'timestamp')
@@ -316,13 +317,14 @@ def extend_time(router_id, prev_time=0):
 
     new_days = prev_time + days_extend
 
-    curr_time = int(time.time())
+    # XXX CRITICAL Changed time getter, need to check this works alright!
+    curr_time = int(time_ms())
     creation_time = router['creation_date'] / 1000  # the time is in milliseconds since epoch
-    search_time = curr_time - new_days * seconds_in_day
+    search_time = curr_time - new_days * milliseconds_in_day
 
     if search_time < creation_time:
         time_diff = curr_time - creation_time
-        days_diff = int(time_diff / seconds_in_day)
+        days_diff = int(time_diff / milliseconds_in_day)
         return days_diff, True
 
     return new_days, False

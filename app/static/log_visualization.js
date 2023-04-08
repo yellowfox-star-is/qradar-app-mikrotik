@@ -241,12 +241,13 @@ function timeline(el, data)
             const position = ((event.time - data.start_time) * ratio).toFixed(2);
 
             const eventTmpl = document.createElement("div");
+            eventTmpl.classList.add('event')
             eventTmpl.innerHTML =
-                '<div class="event"><div class="circle"><div class="circle-inner"></div><div class="label"><label>' +
+                '<div class="circle"><div class="circle-inner"></div><div class="label"><label>' +
                 event.title +
                 "</label><time>" +
                 new Date(event.time).toLocaleString() +
-                "</time></div></div></div>";
+                "</time></div></div>";
             eventTmpl.style.left = position + "%";
             lineTmpl.querySelector(".events").appendChild(eventTmpl);
         });
@@ -257,12 +258,13 @@ function timeline(el, data)
     el.appendChild(timeTmpl);
 
     const periodTmpl = document.createElement("div");
+    periodTmpl.classList.add('period')
     periodTmpl.innerHTML =
-        '<div class="period"><div class="label last">' +
+        '<div class="label last">' +
         new Date(data.stop_time).toLocaleString() +
         '</div><div class="label first">' +
         new Date(data.start_time).toLocaleString() +
-        "</div></div>";
+        "</div>";
     periodTmpl.style.left = "0%";
     periodTmpl.style.width = "100%";
     timeTmpl.appendChild(periodTmpl);

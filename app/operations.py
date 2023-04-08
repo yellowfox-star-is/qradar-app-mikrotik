@@ -1,5 +1,6 @@
 import copy
 import ipaddress
+import time
 
 
 def str_with_delimiter(list0, delimiter):
@@ -74,3 +75,7 @@ def fnv1a_128(data: bytes) -> bytes:
         hash %= (2**128)
 
     return hash.to_bytes(16, byteorder='big')
+
+
+def time_ms():
+    return round(time.time() * 1000)
