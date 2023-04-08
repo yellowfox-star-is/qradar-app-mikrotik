@@ -220,52 +220,56 @@ function update_raw_containers()
 }
 
 
-function timeline(el, data) {
-el.classList.add("timeline");
-// calc ratio for event positions
-const ratio = 100 / (data.stop_time - data.start_time);
+function timeline(el, data)
+{
+    el.classList.add("timeline");
+    // calc ratio for event positions
+    const ratio = 100 / (data.stop_time - data.start_time);
 
-data.lines.forEach(function (line) {
-  const lineTmpl = document.createElement("div");
-  lineTmpl.innerHTML =
-    '<div class="line"><h4>' +
-    line.title +
-    '</h4><div class="events"></div></div>';
-  lineTmpl.classList.add("line", line.css);
-  el.appendChild(lineTmpl);
+    data.lines.forEach(function (line)
+    {
+        const lineTmpl = document.createElement("div");
+        lineTmpl.innerHTML =
+            '<h4>' +
+            line.title +
+            '</h4><div class="events"></div>';
+        lineTmpl.classList.add("line", line.css);
+        el.appendChild(lineTmpl);
 
-  line.events.forEach(function (event) {
-    const position = ((event.time - data.start_time) * ratio).toFixed(2);
+        line.events.forEach(function (event)
+        {
+            const position = ((event.time - data.start_time) * ratio).toFixed(2);
 
-    const eventTmpl = document.createElement("div");
-    eventTmpl.innerHTML =
-      '<div class="event"><div class="circle"><div class="circle-inner"></div><div class="label"><label>' +
-      event.title +
-      "</label><time>" +
-      new Date(event.time).toLocaleString() +
-      "</time></div></div></div>";
-    eventTmpl.style.left = position + "%";
-    lineTmpl.querySelector(".events").appendChild(eventTmpl);
-  });
-});
+            const eventTmpl = document.createElement("div");
+            eventTmpl.innerHTML =
+                '<div class="event"><div class="circle"><div class="circle-inner"></div><div class="label"><label>' +
+                event.title +
+                "</label><time>" +
+                new Date(event.time).toLocaleString() +
+                "</time></div></div></div>";
+            eventTmpl.style.left = position + "%";
+            lineTmpl.querySelector(".events").appendChild(eventTmpl);
+        });
+    });
 
-const timeTmpl = document.createElement("div");
-timeTmpl.classList.add("time");
-el.appendChild(timeTmpl);
+    const timeTmpl = document.createElement("div");
+    timeTmpl.classList.add("time");
+    el.appendChild(timeTmpl);
 
-const periodTmpl = document.createElement("div");
-periodTmpl.innerHTML =
-  '<div class="period"><div class="label last">' +
-  new Date(data.stop_time).toLocaleString() +
-  '</div><div class="label first">' +
-  new Date(data.start_time).toLocaleString() +
-  "</div></div>";
-periodTmpl.style.left = "0%";
-periodTmpl.style.width = "100%";
-timeTmpl.appendChild(periodTmpl);
+    const periodTmpl = document.createElement("div");
+    periodTmpl.innerHTML =
+        '<div class="period"><div class="label last">' +
+        new Date(data.stop_time).toLocaleString() +
+        '</div><div class="label first">' +
+        new Date(data.start_time).toLocaleString() +
+        "</div></div>";
+    periodTmpl.style.left = "0%";
+    periodTmpl.style.width = "100%";
+    timeTmpl.appendChild(periodTmpl);
 }
 
-function make_timeline(router_name, data) {
+function make_timeline(router_name, data)
+{
     let target_element = document.getElementById(router_name + timeline_affix + bot_affix)
 
     let timeline_element = document.createElement('div')
@@ -277,17 +281,17 @@ function make_timeline(router_name, data) {
 function make_timelines()
 {
     fetch('/get/routers')
-    .then((response) => response.json())
-    .then((data) =>
-    {
-        for (const router of data)
+        .then((response) => response.json())
+        .then((data) =>
         {
-            fetch('/get/timeline/' + router['id'])
-                .then((response) => response.json())
-                .then((data) =>
+            for (const router of data)
             {
-                make_timeline(router['name'], data)
-            })
-        }
-    })
+                fetch('/get/timeline/' + router['id'])
+                    .then((response) => response.json())
+                    .then((data) =>
+                    {
+                        make_timeline(router['name'], data)
+                    })
+            }
+        })
 }
