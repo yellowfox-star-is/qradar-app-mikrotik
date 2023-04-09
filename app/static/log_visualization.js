@@ -43,12 +43,14 @@ function update_number(target_element, new_number)
     target_element.innerText = new_number + " " + target_element.innerText
 }
 
-function update_offenses_element(router_name)
+function update_offenses_element(router)
 {
+    return
+
     // get offenses
 
-    let offenses_element = document.getElementById(router_name + '_offenses_bot')
-    update_number(document.getElementById(router_name + offenses_affix + top_affix), router['offenses'].length)
+    let offenses_element = document.getElementById(router['name'] + '_offenses_bot')
+    update_number(document.getElementById(router['name'] + offenses_affix + top_affix), router['offenses'].length)
     offenses_element.innerHTML = '' // clear previous offenses
     for (const offense of offenses)
     {
@@ -96,7 +98,7 @@ function update_router(root_element, router)
     let router_name = router['name']
     let router_element = get_router_element_bot(router_name)
 
-    update_offenses_element(router_name)
+    update_offenses_element(router)
     update_raw_container(router)
     make_timeline(router)
 }

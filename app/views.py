@@ -62,12 +62,14 @@ def get_routers():
 
 
 @viewsbp.route('/get/raw/<routerid>')
-def get_raw(routerid=None):
-    return pass_data(get_data.get_raw(routerid))
+@viewsbp.route('/get/raw/<routerid>/<starttimestamp>/<endtimestamp>')
+def get_raw(routerid=None, starttimestamp=None, endtimestamp=None):
+    return pass_data(get_data.get_raw(routerid, starttimestamp, endtimestamp))
 
 
 @viewsbp.route('/get/timeline/<routerid>')
-def get_timeline(routerid=None):
+@viewsbp.route('/get/timeline/<routerid>/<starttimestamp>/<endtimestamp>')
+def get_timeline(routerid=None, starttimestamp=None, endtimestamp=None):
     return pass_data(get_data.get_timeline(routerid))
 
 

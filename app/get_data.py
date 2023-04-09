@@ -161,11 +161,25 @@ def get_devices(router_id: str):
     return devices
 
 
-def get_raw(router_id):
-    result = search.search(f'SELECT starttime, endtime, payload '
-                  f'FROM events WHERE logsourceid = {router_id} '
-                  f'ORDER BY startTime DESC '
-                  f'LAST {default_ariel_days} DAYS')
+def get_raw(router_id, starttimestamp=None, endtimestamp=None):
+    if starttimestamp is None and endtimestamp is None:
+        query = f'SELECT starttime, endtime, payload '\
+                f'FROM events WHERE logsourceid = {router_id} '\
+                f'ORDER BY startTime DESC '\
+                f'LAST {default_ariel_days} DAYS'
+    elif starttimestamp is not None and endtimestamp is not None:
+        query = f'SELECT starttime, endtime, payload '\
+                f'FROM events WHERE logsourceid = {router_id} ' \
+                f'AND ({starttimestamp} < starttime AND startTime < {endtimestamp}) '\
+                f'ORDER BY startTime DESC '\
+                f'LAST {default_ariel_days} DAYS'
+    else:
+        raise NotImplementedError(f"Unexpected calling of get_raw: "
+                                  f"router_id={router_id}, "
+                                  f"starttimestamp={starttimestamp}, "
+                                  f"endtimestamp={endtimestamp}")
+
+    result = search.search(query)
 
     payloads = process_payloads(result)
     copy_from_dict_to_dict(result, payloads, 'starttime', 'timestamp')
