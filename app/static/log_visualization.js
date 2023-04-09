@@ -43,22 +43,31 @@ function update_number(target_element, new_number)
     target_element.innerText = new_number + " " + target_element.innerText
 }
 
+function update_offenses_element(router_name)
+{
+    // get offenses
+
+    let offenses_element = document.getElementById(router_name + '_offenses_bot')
+    update_number(document.getElementById(router_name + offenses_affix + top_affix), router['offenses'].length)
+    offenses_element.innerHTML = '' // clear previous offenses
+    for (const offense of offenses)
+    {
+        // TODO add some totally superb processing here
+        continue
+    }
+}
+
 function create_router(root_element, router)
 {
     let router_name = router['name']
 
     // prepare offenses
     let offenses_elements = create_element_pair(router_name + offenses_affix, "Offenses")
-    update_number(offenses_elements[0], router['offenses'].length)
-    for (const offense of router["offenses"])
-    {
-        // TODO add some totally superb processing here
-        continue
-    }
 
     // prepare raw
     let raw_elements = create_raw_elements(router_name)
 
+    // prepare timeline
     let timeline_elemets = create_element_pair(router_name + timeline_affix, 'Timeline')
 
     // create router
@@ -88,32 +97,9 @@ function update_router(root_element, router)
     let router_name = router['name']
     let router_element = get_router_element_bot(router_name)
 
-    // update networks
-    let networks_element = document.getElementById(router_name + '_networks_bot')
-    update_number(document.getElementById(router_name + '_networks_top'), router['networks'].length)
-    networks_element.innerHTML = ''
-    for (const address of router['networks']) networks_element.innerHTML += address + "<br>"
-
-    // update offenses
-    let offenses_element = document.getElementById(router_name + '_offenses_bot')
-    update_number(document.getElementById(router_name + offenses_affix + top_affix), router['offenses'].length)
-    offenses_element.innerHTML = '' // clear previous offenses
-    for (const offense of router["offenses"])
-    {
-        // TODO add some totally superb processing here
-        continue
-    }
-
-    // update devices
-    let devices_element = document.getElementById(router_name + '_devices_bot')
-    update_number(document.getElementById(router_name + '_devices_top'), router['devices'].length)
-    devices_element.innerHTML = '' // clear previous devices
-    for (const device of router["devices"])
-    {
-        let IP_adds = ""
-        for (const add of device['ip']) IP_adds += add + " "
-        devices_element.innerHTML += "MAC: " + device["mac"] + "<br>IP: " + IP_adds + "<br>"
-    }
+    update_offenses_element(router_name)
+    update_raw_container(router)
+    make_timeline(router_name)
 }
 
 function get_router_element_top(router_name)
@@ -286,14 +272,20 @@ fixed and modified by Yellow Fox
     timeTmpl.appendChild(periodTmpl);
 }
 
-function make_timeline(router_name, data)
+function make_timeline(router_name)
 {
+
+                fetch('/get/timeline/' + router['id'])
+                    .then((response) => response.json())
+                    .then((data) =>
+                    {
     let target_element = document.getElementById(router_name + timeline_affix + bot_affix)
 
     let timeline_element = document.createElement('div')
     timeline_element.classList.add('tl')
     timeline(timeline_element, data)
     target_element.appendChild(timeline_element)
+                    })
 }
 
 function make_timelines()
@@ -304,12 +296,7 @@ function make_timelines()
         {
             for (const router of data)
             {
-                fetch('/get/timeline/' + router['id'])
-                    .then((response) => response.json())
-                    .then((data) =>
-                    {
-                        make_timeline(router['name'], data)
-                    })
+                make_timeline(router['name'], data)
             }
         })
 }
