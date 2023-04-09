@@ -2,6 +2,10 @@
 <html>
 <head>
     <title>MikroTik Monitor</title>
+
+    <link rel="stylesheet" href="static/flatpickr.min.css">
+    <script src="static/flatpickr.js"></script>
+
     <link href="static/styles.css" rel="stylesheet">
     <link href="static/horizontal_timeline.css" rel="stylesheet">
 
@@ -9,10 +13,14 @@
 </head>
 
 <body>
-<div style="display: flex; align-items: start">
+<div id="settings-bar" style="display: flex; align-items: start">
     <button id="load-button">Load Data</button>
+    <input id="load-date" type="text" size="40" placeholder="Select Date...">
 </div>
 
+<script>
+    flatpickr(document.getElementById("load-date"), {mode: "range", enableTime: true,});
+</script>
 
 <div id="zulli-div"></div>
 <div id="__root" onload="load_data()">
@@ -24,23 +32,33 @@
 <script src="{{ url_for('static', filename='log_visualization.js') }}"></script>
 
 <script>
-    document.getElementById("load-button").onclick = function () {
+    document.getElementById("load-button").onclick = function ()
+    {
+        var loadDateInput = document.getElementById("load-date");
+        var loadDate = loadDateInput.value;
+        console.log(loadDate);
+
+        update_router_elements()
         update_raw_containers()
         make_timelines()
     };
 
-    function zulli() {
+    function zulli()
+    {
         fetch('/test_func')
             .then((response) => response.json())
-            .then((data) => {
+            .then((data) =>
+            {
                 document.getElementById("zulli-div").innerHTML += data.greeting;
             });
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function ()
+    {
         fetch('/get/routers')
             .then((response) => response.json())
-            .then((data) => {
+            .then((data) =>
+            {
                 create_router_elements("__root", data)
             });
     });
@@ -96,12 +114,16 @@ Date: 10. 03. 2023
 
 <script>
 
-    function accordion_collapse() {
+    function accordion_collapse()
+    {
         this.classList.toggle("active");
         let panel = this.nextElementSibling;
-        if (panel.style.display === "block") {
+        if (panel.style.display === "block")
+        {
             panel.style.display = "none";
-        } else {
+        }
+        else
+        {
             panel.style.display = "block";
         }
     }
@@ -109,7 +131,8 @@ Date: 10. 03. 2023
     var acc = document.getElementsByClassName("accordion");
     var i;
 
-    for (i = 0; i < acc.length; i++) {
+    for (i = 0; i < acc.length; i++)
+    {
         acc[i].addEventListener("click", accordion_collapse);
     }
 </script>

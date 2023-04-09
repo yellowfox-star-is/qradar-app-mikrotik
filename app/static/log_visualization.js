@@ -274,17 +274,17 @@ fixed and modified by Yellow Fox
 function make_timeline(router)
 {
 
-                fetch('/get/timeline/' + router['id'])
-                    .then((response) => response.json())
-                    .then((data) =>
-                    {
-    let target_element = document.getElementById(router['name'] + timeline_affix + bot_affix)
+    fetch('/get/timeline/' + router['id'])
+        .then((response) => response.json())
+        .then((data) =>
+        {
+            let target_element = document.getElementById(router['name'] + timeline_affix + bot_affix)
 
-    let timeline_element = document.createElement('div')
-    timeline_element.classList.add('tl')
-    timeline(timeline_element, data)
-    target_element.appendChild(timeline_element)
-                    })
+            let timeline_element = document.createElement('div')
+            timeline_element.classList.add('tl')
+            timeline(timeline_element, data)
+            target_element.appendChild(timeline_element)
+        })
 }
 
 function make_timelines()
