@@ -9,10 +9,12 @@
 </head>
 
 <body>
+<div style="display: flex; align-items: start">
+    <button id="load-button">Load Data</button>
+</div>
 
-<button id="zulli-butt">Zulli! Do the thing!</button>
+
 <div id="zulli-div"></div>
-
 <div id="__root" onload="load_data()">
 </div>
 
@@ -22,7 +24,7 @@
 <script src="{{ url_for('static', filename='log_visualization.js') }}"></script>
 
 <script>
-    document.getElementById("zulli-butt").onclick = function () {
+    document.getElementById("load-button").onclick = function () {
         update_raw_containers()
         make_timelines()
     };
@@ -36,7 +38,11 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-        create_router_elements('__root', '[ { "name": "Testing MikroTik","networks": [], "offenses": [], "devices": [] },{ "name": "Testing MikroTik (Direct)","networks": ["192.168.88.1"],"offenses": [],"devices": [ { "mac": "08:00:27:01:27:15", "ip": [ "192.168.88.244" ] } ] } ]')
+        fetch('/get/routers')
+            .then((response) => response.json())
+            .then((data) => {
+                create_router_elements("__root", data)
+            });
     });
 
 

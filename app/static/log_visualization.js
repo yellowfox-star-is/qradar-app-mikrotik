@@ -82,9 +82,8 @@ function create_router(root_element, router)
     insert_element_pair(root_element, router_elements)
 }
 
-function create_router_elements(root_id, json_string)
+function create_router_elements(root_id, data)
 {
-    const data = JSON.parse(json_string);
     let root_element = document.getElementById(root_id)
     for (const router of data)
     {
@@ -99,7 +98,7 @@ function update_router(root_element, router)
 
     update_offenses_element(router_name)
     update_raw_container(router)
-    make_timeline(router_name)
+    make_timeline(router)
 }
 
 function get_router_element_top(router_name)
@@ -272,14 +271,14 @@ fixed and modified by Yellow Fox
     timeTmpl.appendChild(periodTmpl);
 }
 
-function make_timeline(router_name)
+function make_timeline(router)
 {
 
                 fetch('/get/timeline/' + router['id'])
                     .then((response) => response.json())
                     .then((data) =>
                     {
-    let target_element = document.getElementById(router_name + timeline_affix + bot_affix)
+    let target_element = document.getElementById(router['name'] + timeline_affix + bot_affix)
 
     let timeline_element = document.createElement('div')
     timeline_element.classList.add('tl')
@@ -296,7 +295,7 @@ function make_timelines()
         {
             for (const router of data)
             {
-                make_timeline(router['name'], data)
+                make_timeline(router)
             }
         })
 }
