@@ -26,6 +26,7 @@ milliseconds_in_day = seconds_in_day * 1000
 VERIFY = False
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
+
 def get_all():
     routers = get_routers()
     result = []
@@ -162,22 +163,22 @@ def get_devices(router_id: str):
 
 
 def get_raw(router_id, starttimestamp=None, endtimestamp=None):
+    search_days = days_in_past(starttimestamp)
+    query = f'SELECT starttime, endtime, payload '\
+            f'FROM events WHERE logsourceid = {router_id} '
+
     if starttimestamp is None and endtimestamp is None:
-        query = f'SELECT starttime, endtime, payload '\
-                f'FROM events WHERE logsourceid = {router_id} '\
-                f'ORDER BY startTime DESC '\
-                f'LAST {default_ariel_days} DAYS'
+        search_days = default_ariel_days
     elif starttimestamp is not None and endtimestamp is not None:
-        query = f'SELECT starttime, endtime, payload '\
-                f'FROM events WHERE logsourceid = {router_id} ' \
-                f'AND ({starttimestamp} < starttime AND startTime < {endtimestamp}) '\
-                f'ORDER BY startTime DESC '\
-                f'LAST {default_ariel_days} DAYS'
+        query += f'AND ({starttimestamp} < starttime AND startTime < {endtimestamp}) '
     else:
         raise NotImplementedError(f"Unexpected calling of get_raw: "
                                   f"router_id={router_id}, "
                                   f"starttimestamp={starttimestamp}, "
                                   f"endtimestamp={endtimestamp}")
+
+    query += f'ORDER BY startTime DESC '\
+             f'LAST {search_days} DAYS'
 
     result = search.search(query)
 
@@ -200,15 +201,21 @@ def populate_qid(payloads):
         payloads[i]['description'] = resolved_qids[qid]['description']
 
 
-def get_timeline(router_id):
-    end_timestamp = int(time_ms())
+def get_timeline(router_id, start_timestamp=None, end_timestamp=None):
+    query = f'SELECT starttime, endtime, qid, payload FROM events ' \
+            f'WHERE logsourceid = {router_id} ' \
 
-    search_days = default_ariel_days
-    result = search.search(f'SELECT starttime, endtime, qid, payload FROM events '
-                           f'WHERE logsourceid = {router_id} '
-                           f'ORDER BY startTime DESC LAST {search_days} DAYS')
+    if start_timestamp is None and end_timestamp is None:
+        search_days = default_ariel_days
+        end_timestamp = int(time_ms())
+        start_timestamp = end_timestamp - search_days * milliseconds_in_day
+    elif start_timestamp is not None and end_timestamp is not None:
+        search_days = days_in_past(start_timestamp)
+        query += f'AND ({start_timestamp} < startTime AND startTime < {end_timestamp}) '
 
-    start_timestamp = end_timestamp - search_days * milliseconds_in_day
+    query += f'ORDER BY startTime DESC LAST {search_days} DAYS'
+
+    result = search.search(query)
 
     payloads = process_payloads(result)
     copy_from_dict_to_dict(result, payloads, 'starttime', 'timestamp')
