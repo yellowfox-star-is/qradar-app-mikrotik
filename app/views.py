@@ -10,6 +10,8 @@ from qpylib import qpylib
 import json
 import os
 import html
+import urllib.parse
+import datetime
 
 import get_data
 
@@ -21,6 +23,21 @@ app = viewsbp
 def pass_data(objects):
     json_string = json.dumps(objects)
     return json_string
+
+
+def url_to_stamp(url_datetime):
+    datetime_str = urllib.parse.unquote(url_datetime)
+    date = datetime.datetime.fromisoformat(datetime_str)
+    timestamp = date.timestamp()
+    return timestamp
+
+
+def call_with_opt_time(function, routerid, starttimestamp, endtimestamp):
+    if starttimestamp is None and endtimestamp is None:
+        return function(routerid)
+    return function(routerid,
+                    url_to_stamp(starttimestamp),
+                    url_to_stamp(endtimestamp))
 
 
 # A simple "Hello" endpoint that demonstrates use of render_template
@@ -64,13 +81,13 @@ def get_routers():
 @viewsbp.route('/get/raw/<routerid>')
 @viewsbp.route('/get/raw/<routerid>/<starttimestamp>/<endtimestamp>')
 def get_raw(routerid=None, starttimestamp=None, endtimestamp=None):
-    return pass_data(get_data.get_raw(routerid, starttimestamp, endtimestamp))
+    return pass_data(call_with_opt_time(get_data.get_raw, routerid, starttimestamp, endtimestamp))
 
 
 @viewsbp.route('/get/timeline/<routerid>')
 @viewsbp.route('/get/timeline/<routerid>/<starttimestamp>/<endtimestamp>')
 def get_timeline(routerid=None, starttimestamp=None, endtimestamp=None):
-    return pass_data(get_data.get_timeline(routerid))
+    return pass_data(call_with_opt_time(get_data.get_timeline, routerid, starttimestamp, endtimestamp))
 
 
 @viewsbp.route('/get/mock')
