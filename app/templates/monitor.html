@@ -15,11 +15,11 @@
 <body>
 <div id="settings-bar" style="display: flex; align-items: start">
     <button id="load-button">Load Data</button>
-    <input id="load-date" type="text" size="40" placeholder="Select Date...">
+    <input id="load-date" type="text" size="80" placeholder="Select Date...">
 </div>
 
 <script>
-    flatpickr(document.getElementById("load-date"), {mode: "range", enableTime: true,});
+    flatpickr(document.getElementById("load-date"), {mode: "range", enableTime: true, altInput: true});
 </script>
 
 <div id="zulli-div"></div>
@@ -32,15 +32,14 @@
 <script src="{{ url_for('static', filename='log_visualization.js') }}"></script>
 
 <script>
+    var root_id = "__root"
+
     document.getElementById("load-button").onclick = function ()
     {
         var loadDateInput = document.getElementById("load-date");
-        var loadDate = loadDateInput.value;
-        console.log(loadDate);
+        var daterange_string = loadDateInput.value.split(" to ");
 
-        update_router_elements()
-        update_raw_containers()
-        make_timelines()
+        update_router_elements(root_id, daterange_string)
     };
 
     function zulli()
@@ -55,12 +54,8 @@
 
     document.addEventListener("DOMContentLoaded", function ()
     {
-        fetch('/get/routers')
-            .then((response) => response.json())
-            .then((data) =>
-            {
-                create_router_elements("__root", data)
-            });
+
+
     });
 
 

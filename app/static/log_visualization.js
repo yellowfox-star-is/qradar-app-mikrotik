@@ -43,7 +43,7 @@ function update_number(target_element, new_number)
     target_element.innerText = new_number + " " + target_element.innerText
 }
 
-function update_offenses_element(router)
+function update_offenses_element(router, times_s = [])
 {
     return
 
@@ -93,14 +93,14 @@ function create_router_elements(root_id, data)
     }
 }
 
-function update_router(root_element, router)
+function update_router(root_element, router, times_s = [])
 {
     let router_name = router['name']
     let router_element = get_router_element_bot(router_name)
 
-    update_offenses_element(router)
-    update_raw_container(router)
-    make_timeline(router)
+    update_offenses_element(router, times_s)
+    update_raw_container(router, times_s)
+    make_timeline(router, times_s)
 }
 
 function get_router_element_top(router_name)
@@ -119,21 +119,26 @@ function get_router_elements(router_name)
     let router_el_bot = get_router_element_bot(router_name)
 }
 
-function update_router_elements(root_id, json_string)
+function update_router_elements(root_id, times_s = [])
 {
-    const data = JSON.parse(json_string);
-    let root_element = document.getElementById(root_id)
-    for (const router of data)
-    {
-        if (get_router_element_top(router['name']))
+    fetch('/get/routers')
+        .then((response) => response.json())
+        .then((data) =>
         {
-            update_router(root_element, router)
-        }
-        else
-        {
-            create_router(root_element, router)
-        }
-    }
+            let root_element = document.getElementById(root_id)
+            for (const router of data)
+            {
+                if (get_router_element_top(router['name']))
+                {
+                    update_router(root_element, router, times_s)
+                }
+                else
+                {
+                    create_router(root_element, router)
+                    update_router(root_element, router, times_s)
+                }
+            }
+        });
 }
 
 function create_raw_elements(router_name)
@@ -166,12 +171,18 @@ function format_timestamp(timestamp)
     return formattedDate
 }
 
-function update_raw_container(router)
+function update_raw_container(router, times_s = [])
 {
     // WARNING need to check scrolling
 
+    let url = `/get/raw/${router.id}`
+    if (times_s.length > 0)
+    {
+        url += `/${encodeURI(times_s[0])}/${encodeURI(times_s[1])}`
+    }
+
     let raw_container = document.getElementById(router.name + raw_affix + bot_affix)
-    fetch('/get/raw/' + router.id)
+    fetch(url)
         .then((response) => response.json())
         .then((data) =>
             {
@@ -273,10 +284,15 @@ fixed and modified by Yellow Fox
     timeTmpl.appendChild(periodTmpl);
 }
 
-function make_timeline(router)
+function make_timeline(router, times_s= [])
 {
+    let url = `/get/timeline/${router['id']}`
+    if (times_s.length > 0)
+    {
+        url += `/${encodeURI(times_s[0])}/${encodeURI(times_s[1])}`
+    }
 
-    fetch('/get/timeline/' + router['id'])
+    fetch(url)
         .then((response) => response.json())
         .then((data) =>
         {
