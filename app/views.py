@@ -12,6 +12,8 @@ import os
 import html
 import urllib.parse
 import datetime
+from backports.datetime_fromisoformat import MonkeyPatch
+MonkeyPatch.patch_fromisoformat()
 
 import get_data
 
@@ -28,7 +30,7 @@ def pass_data(objects):
 def url_to_stamp(url_datetime):
     datetime_str = urllib.parse.unquote(url_datetime)
     date = datetime.datetime.fromisoformat(datetime_str)
-    timestamp = date.timestamp()
+    timestamp = int(date.timestamp() * 1000)
     return timestamp
 
 

@@ -163,13 +163,13 @@ def get_devices(router_id: str):
 
 
 def get_raw(router_id, starttimestamp=None, endtimestamp=None):
-    search_days = days_in_past(starttimestamp)
     query = f'SELECT starttime, endtime, payload '\
             f'FROM events WHERE logsourceid = {router_id} '
 
     if starttimestamp is None and endtimestamp is None:
         search_days = default_ariel_days
     elif starttimestamp is not None and endtimestamp is not None:
+        search_days = days_in_past(starttimestamp)
         query += f'AND ({starttimestamp} < starttime AND startTime < {endtimestamp}) '
     else:
         raise NotImplementedError(f"Unexpected calling of get_raw: "
@@ -181,6 +181,9 @@ def get_raw(router_id, starttimestamp=None, endtimestamp=None):
              f'LAST {search_days} DAYS'
 
     result = search.search(query)
+
+    if result is None:
+        return []
 
     payloads = process_payloads(result)
     copy_from_dict_to_dict(result, payloads, 'starttime', 'timestamp')
@@ -216,6 +219,9 @@ def get_timeline(router_id, start_timestamp=None, end_timestamp=None):
     query += f'ORDER BY startTime DESC LAST {search_days} DAYS'
 
     result = search.search(query)
+
+    if result is None:
+        return []
 
     payloads = process_payloads(result)
     copy_from_dict_to_dict(result, payloads, 'starttime', 'timestamp')
@@ -417,6 +423,7 @@ def process_payloads(payloads):
 if __name__ == "__main__":
     #print(make_id(["ksjfnsoejnoisn"]))
     #print(get_gid_record(1002250012))
-    #print(get_raw(162))
+    print(get_raw(162))
+    print(get_raw(162, 1678537616000, 1681227177000))
     print(get_timeline(162))
     # print(json.dumps(get_raw(162), indent=2))
