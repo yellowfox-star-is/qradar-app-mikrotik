@@ -44,7 +44,7 @@ def call_with_opt_time(function, routerid, starttimestamp, endtimestamp):
 
 # A simple "Hello" endpoint that demonstrates use of render_template
 # and qpylib logging.
-@viewsbp.route('/')
+# @viewsbp.route('/')
 @viewsbp.route('/<name>')
 def hello(name=None):
     qpylib.log('name={0}'.format(name), level='INFO')
@@ -59,6 +59,7 @@ def favicon():
     return send_from_directory(current_app.static_folder, 'favicon-16x16.png')
 
 
+@viewsbp.route('/')
 @viewsbp.route('/monitor')
 def monitor():
     return render_template('monitor.html')
