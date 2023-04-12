@@ -301,6 +301,7 @@ function make_timeline(router, times_s= [])
             let timeline_element = document.createElement('div')
             timeline_element.classList.add('tl')
             timeline(timeline_element, data)
+            target_element.innerHTML = ''
             target_element.appendChild(timeline_element)
         })
 }
