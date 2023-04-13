@@ -93,6 +93,11 @@ def get_timeline(routerid=None, starttimestamp=None, endtimestamp=None):
     return pass_data(call_with_opt_time(get_data.get_timeline, routerid, starttimestamp, endtimestamp))
 
 
+@viewsbp.route('/get/offenses/<routerid>')
+def get_offenses(routerid):
+    return pass_data(get_data.get_offenses(routerid))
+
+
 @viewsbp.route('/get/mock')
 def mock_get():
     data = '[ { "name": "Testing MikroTik",' \

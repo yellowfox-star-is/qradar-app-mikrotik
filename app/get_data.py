@@ -1,4 +1,5 @@
 import base64
+import copy
 import json
 import logging
 import time
@@ -90,16 +91,13 @@ def get_networks(router_id):
 
 def get_offenses(router_id: str):
     params = {
-        'filter': f'log_sources contains id={router_id} and status="OPEN"',
-        'Range': 'items=0-49'
+        'filter': f'log_sources contains id={router_id} and status="OPEN"'
     }
     response = qpylib.REST(rest_action='GET',
                            request_url='/api/siem/offenses',
                            params=params,
                            verify=VERIFY)
     data = response.json()
-
-    # TODO parse the data more, test when there is an offense
 
     return data
 
@@ -241,7 +239,7 @@ def format_to_timeline(start_timestamp, end_timestamp, payloads, offenses):
 
     objects.TimelineEvent.reset_id()
     line_offenses = objects.TimelineLine('Offenses', 'offenses')
-    line_offenses.events = [objects.TimelineEvent(n['timestamp'], n['TODO']) for n in offenses]
+    line_offenses.events = [objects.TimelineEvent(n['start_time'], n['description']) for n in offenses]
 
     data = {
         "start_time": start_timestamp,

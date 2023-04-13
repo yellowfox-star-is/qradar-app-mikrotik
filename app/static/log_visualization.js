@@ -43,20 +43,51 @@ function update_number(target_element, new_number)
     target_element.innerText = new_number + " " + target_element.innerText
 }
 
+function write_simple_div(target_element, text, style=null) {
+    let child = document.createElement('div')
+    child.innerText = text
+    target_element.appendChild(child)
+}
+
 function update_offenses_element(router, times_s = [])
 {
-    return
-
     // get offenses
+        let url = `/get/offenses/${router.id}`
+    fetch(url)
+        .then((response) => response.json())
+        .then((data) =>
+        {
+            let offenses_element = document.getElementById(router['name'] + '_offenses_bot')
+            update_number(document.getElementById(router['name'] + offenses_affix + top_affix), data.length)
+            offenses_element.innerHTML = '' // clear previous offenses
+            for (const offense of data)
+            {
+                // make description
+                let offense_description = document.createElement('div')
+                let write_with_omit = function (text) {write_simple_div(offense_description, text)}
+                write_with_omit(`${offense.description}`)
+                write_with_omit(`id: ${offense.id}`)
+                write_with_omit(`time: ${format_timestamp(offense.start_time)}`)
+                write_with_omit(`magnitude: ${offense.magnitude}`)
+                write_with_omit(`event count: ${offense.event_count}`)
+                write_with_omit(`Categories:`)
+                for (const category of offense.categories)
+                {
+                    let write_weird_div = function (text) {
+                        let child = document.createElement('div')
+                        child.style.padding = "0em 0em 0em 2em"
+                        child.innerText = text
+                        offense_description.appendChild(child)
+                    }
+                    write_weird_div(`${category}`)
+                }
 
-    let offenses_element = document.getElementById(router['name'] + '_offenses_bot')
-    update_number(document.getElementById(router['name'] + offenses_affix + top_affix), router['offenses'].length)
-    offenses_element.innerHTML = '' // clear previous offenses
-    for (const offense of offenses)
-    {
-        // TODO add some totally superb processing here
-        continue
-    }
+                // insert into list
+                let offense_pair = create_element_pair('', offense.description)
+                offense_pair[1].appendChild(offense_description)
+                insert_element_pair(offenses_element, offense_pair)
+            }
+        })
 }
 
 function create_router(root_element, router)
