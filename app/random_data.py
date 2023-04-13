@@ -23,8 +23,8 @@ def random_mac():
 def random_ip():
     # Example LAN subnet: 192.168.1.x
     subnet = "192.168.1."
-    
+
     # Generate a random value for 'x'
     random_ip = subnet + str(random.randint(1, 254))
-    
+
     return random_ip

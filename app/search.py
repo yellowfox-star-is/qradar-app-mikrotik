@@ -6,7 +6,6 @@ from custom_ariel import ArielSearch, ArielError
 ariel = ArielSearch()
 
 
-"""Time"""
 class States:
     Completed = 'COMPLETED'
     Wait = 'WAIT'
@@ -23,6 +22,7 @@ Timeout: int = 1
 __test_query = "SELECT * FROM events LAST 10 MINUTES"
 
 log_status = lambda s: logging.debug(f"acquired status: {s}")
+
 
 def search_start(query):
     try:

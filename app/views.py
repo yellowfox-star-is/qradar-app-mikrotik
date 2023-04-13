@@ -13,6 +13,7 @@ import html
 import urllib.parse
 import datetime
 from backports.datetime_fromisoformat import MonkeyPatch
+
 MonkeyPatch.patch_fromisoformat()
 
 import get_data

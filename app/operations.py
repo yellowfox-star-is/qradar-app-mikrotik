@@ -73,7 +73,7 @@ def fnv1a_128(data: bytes) -> bytes:
     for b in data:
         hash ^= b
         hash *= FNV_PRIME
-        hash %= (2**128)
+        hash %= (2 ** 128)
 
     return hash.to_bytes(16, byteorder='big')
 
@@ -106,7 +106,3 @@ def days_in_past(past_timestamp, present_timestamp=None):
         present_timestamp = time_ms()
 
     return days_between(present_timestamp / 1000, past_timestamp / 1000)
-
-
-if __name__ == "__main__":
-    print(timestamp_to_days_in_past(1678895100000))

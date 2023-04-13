@@ -38,23 +38,28 @@
     var root_id = "__root"
 
     var wait_timer = new easytimer.Timer({precision: 'secondTenths'});
-    wait_timer.addEventListener('secondsUpdated', function (e) {
+    wait_timer.addEventListener('secondsUpdated', function (e)
+    {
         let element_wait_timer = document.getElementById('wait_timer')
         element_wait_timer.innerText = wait_timer.getTotalTimeValues().seconds.toString()
         element_wait_timer.innerText += " seconds"
     });
 
-    class SpecialCounter {
-          constructor() {
+    class SpecialCounter
+    {
+        constructor()
+        {
             this.count = 0;
-          }
+        }
 
-          write_to_element() {
-              let target_element = document.getElementById('fetch_counter')
-              target_element.innerText = `${this.count} fetches`
-          }
+        write_to_element()
+        {
+            let target_element = document.getElementById('fetch_counter')
+            target_element.innerText = `${this.count} fetches`
+        }
 
-          raise() {
+        raise()
+        {
             this.count++;
             this.write_to_element()
             if (this.count > 0)
@@ -68,9 +73,10 @@
                     wait_timer.start()
                 }
             }
-          }
+        }
 
-          lower() {
+        lower()
+        {
             this.count--;
             this.write_to_element()
             if (this.count === 0)
@@ -80,7 +86,7 @@
                     wait_timer.pause()
                 }
             }
-          }
+        }
     }
 
     var fetch_counter = new SpecialCounter()
