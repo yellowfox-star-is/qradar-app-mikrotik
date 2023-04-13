@@ -12,6 +12,7 @@ from qpylib import qpylib
 import subprocess
 import os
 
+
 # Flask application factory.
 def create_app():
     # Create a Flask instance.

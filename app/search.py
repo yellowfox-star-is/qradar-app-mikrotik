@@ -36,13 +36,12 @@ def search_start(query):
 
 
 def search_status(search_id):
-    #try:
-    response = ariel.status(search_id)
-    #except ArielError as error:
-    #    logging.error(str(error))
-    #    return {"Error": str(error)}
+    try:
+        response = ariel.status(search_id)
+    except ArielError as error:
+        logging.error(str(error))
+        return {"Error": str(error)}
 
-    log_status(response[0])
     return response
 
 
