@@ -5,6 +5,7 @@
 
     <link rel="stylesheet" href="static/flatpickr.min.css">
     <script src="static/flatpickr.js"></script>
+    <script src="static/easytimer.js"></script>
 
     <link href="static/styles.css" rel="stylesheet">
     <link href="static/horizontal_timeline.css" rel="stylesheet">
@@ -16,10 +17,11 @@
 <div id="settings-bar" style="display: flex; align-items: start">
     <button id="load-button">Load Data</button>
     <input id="load-date" type="text" size="80" placeholder="Select Date...">
+    <div id="wait_timer"></div>
 </div>
 
 <script>
-    flatpickr(document.getElementById("load-date"), {mode: "range", enableTime: true, altInput: true});
+    flatpickr(document.getElementById("load-date"), {mode: "range", enableTime: true, altInput: true, time_24hr: true});
 </script>
 
 <div id="zulli-div"></div>
@@ -34,12 +36,24 @@
 <script>
     var root_id = "__root"
 
+    var wait_timer = new easytimer.Timer({precision: 'secondTenths'});
+    wait_timer.addEventListener('secondsUpdated', function (e) {
+        let element_wait_timer = document.getElementById('wait_timer')
+        element_wait_timer.innerText = wait_timer.getTotalTimeValues().seconds.toString()
+        element_wait_timer.innerText += " seconds"
+    });
+
     document.getElementById("load-button").onclick = function ()
     {
         var loadDateInput = document.getElementById("load-date");
         var daterange_string = loadDateInput.value.split(" to ");
 
-        update_router_elements(root_id, daterange_string)
+        wait_timer.start()
+
+        update_router_elements(root_id, daterange_string, function () {wait_timer.stop()})
+
+        wait_timer.stop()
+
     };
 
     function zulli()

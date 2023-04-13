@@ -119,7 +119,7 @@ function get_router_elements(router_name)
     let router_el_bot = get_router_element_bot(router_name)
 }
 
-function update_router_elements(root_id, times_s = [])
+function update_router_elements(root_id, times_s = [], _callback = null)
 {
     fetch('/get/routers')
         .then((response) => response.json())
@@ -186,6 +186,18 @@ function update_raw_container(router, times_s = [])
         .then((response) => response.json())
         .then((data) =>
             {
+
+                /* FUTURE:
+                I wanted for this function to update existing raw container,
+                but alas, I didn't have time to make it happen.
+                to do so, remove the following part, which zeros the container element
+                and add a sorting function after.
+                Hopefully you will get this code further than I could have.
+                 -- Yellow Fox
+                 */
+
+                raw_container.innerHTML = ''
+
                 for (const payload of data)
                 {
                     if (element_exists(payload.id))
@@ -200,6 +212,8 @@ function update_raw_container(router, times_s = [])
                 }
             }
         )
+
+    // sort shit!
 
     // probably scroll here?
 }
