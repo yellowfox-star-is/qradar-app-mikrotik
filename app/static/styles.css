@@ -1,1 +1,5 @@
 p { color: blue; font-family: Arial, sans-serif; }
+
+.child-setting-bar {
+    margin-right: 2em; /* Add some vertical spacing between child elements */
+}

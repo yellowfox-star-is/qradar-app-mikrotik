@@ -14,10 +14,11 @@
 </head>
 
 <body>
-<div id="settings-bar" style="display: flex; align-items: start">
-    <button id="load-button">Load Data</button>
-    <input id="load-date" type="text" size="80" placeholder="Select Date...">
-    <div id="wait_timer"></div>
+<div id="settings-bar" style="display: flex; align-items: start; padding-bottom: 0.25em">
+    <button id="load-button" class="child-setting-bar">Load Data</button>
+    <input id="load-date" class="child-setting-bar" type="text" width="26em" placeholder="Select Date...">
+    <div id="wait_timer" class="child-setting-bar"></div>
+    <div id="fetch_counter" class="child-setting-bar"></div>
 </div>
 
 <script>
@@ -43,17 +44,53 @@
         element_wait_timer.innerText += " seconds"
     });
 
+    class SpecialCounter {
+          constructor() {
+            this.count = 0;
+          }
+
+          write_to_element() {
+              let target_element = document.getElementById('fetch_counter')
+              target_element.innerText = `${this.count} fetches`
+          }
+
+          raise() {
+            this.count++;
+            this.write_to_element()
+            if (this.count > 0)
+            {
+                if (wait_timer.isPaused())
+                {
+                    wait_timer.reset()
+                }
+                else if (wait_timer.isPaused() === false && wait_timer.isRunning() === false)
+                {
+                    wait_timer.start()
+                }
+            }
+          }
+
+          lower() {
+            this.count--;
+            this.write_to_element()
+            if (this.count === 0)
+            {
+                if (wait_timer.isRunning())
+                {
+                    wait_timer.pause()
+                }
+            }
+          }
+    }
+
+    var fetch_counter = new SpecialCounter()
+
     document.getElementById("load-button").onclick = function ()
     {
         var loadDateInput = document.getElementById("load-date");
         var daterange_string = loadDateInput.value.split(" to ");
 
-        wait_timer.start()
-
-        update_router_elements(root_id, daterange_string, function () {wait_timer.stop()})
-
-        wait_timer.stop()
-
+        update_router_elements(root_id, daterange_string, fetch_counter)
     };
 
     function zulli()

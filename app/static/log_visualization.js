@@ -49,10 +49,12 @@ function write_simple_div(target_element, text, style=null) {
     target_element.appendChild(child)
 }
 
-function update_offenses_element(router, times_s = [])
+function update_offenses_element(router, times_s = [], fetch_counter = null)
 {
+    fetch_counter?.raise()
+
     // get offenses
-        let url = `/get/offenses/${router.id}`
+    let url = `/get/offenses/${router.id}`
     fetch(url)
         .then((response) => response.json())
         .then((data) =>
@@ -87,6 +89,8 @@ function update_offenses_element(router, times_s = [])
                 offense_pair[1].appendChild(offense_description)
                 insert_element_pair(offenses_element, offense_pair)
             }
+
+            fetch_counter?.lower()
         })
 }
 
@@ -105,6 +109,8 @@ function create_router(root_element, router)
 
     // create router
     let router_elements = create_element_pair(router_name, router_name)
+    router_elements[0].classList.add('active')
+    router_elements[1].style.display = 'block'
 
     // fill router
     insert_element_pair(router_elements[1], timeline_elemets)
@@ -124,14 +130,14 @@ function create_router_elements(root_id, data)
     }
 }
 
-function update_router(root_element, router, times_s = [])
+function update_router(root_element, router, times_s = [], fetch_counter = null)
 {
     let router_name = router['name']
     let router_element = get_router_element_bot(router_name)
 
-    update_offenses_element(router, times_s)
-    update_raw_container(router, times_s)
-    make_timeline(router, times_s)
+    update_offenses_element(router, times_s, fetch_counter)
+    update_raw_container(router, times_s, fetch_counter)
+    make_timeline(router, times_s, fetch_counter)
 }
 
 function get_router_element_top(router_name)
@@ -150,8 +156,9 @@ function get_router_elements(router_name)
     let router_el_bot = get_router_element_bot(router_name)
 }
 
-function update_router_elements(root_id, times_s = [], _callback = null)
+function update_router_elements(root_id, times_s = [], fetch_counter = null)
 {
+    fetch_counter?.raise()
     fetch('/get/routers')
         .then((response) => response.json())
         .then((data) =>
@@ -161,14 +168,15 @@ function update_router_elements(root_id, times_s = [], _callback = null)
             {
                 if (get_router_element_top(router['name']))
                 {
-                    update_router(root_element, router, times_s)
+                    update_router(root_element, router, times_s, fetch_counter)
                 }
                 else
                 {
                     create_router(root_element, router)
-                    update_router(root_element, router, times_s)
+                    update_router(root_element, router, times_s, fetch_counter)
                 }
             }
+            fetch_counter?.lower()
         });
 }
 
@@ -202,8 +210,10 @@ function format_timestamp(timestamp)
     return formattedDate
 }
 
-function update_raw_container(router, times_s = [])
+function update_raw_container(router, times_s = [], fetch_counter = null)
 {
+    fetch_counter?.raise()
+
     // WARNING need to check scrolling
 
     let url = `/get/raw/${router.id}`
@@ -241,12 +251,14 @@ function update_raw_container(router, times_s = [])
                     payload_element.innerHTML = format_timestamp(payload.timestamp) + " &emsp;&emsp; " + payload.payload
                     raw_container.appendChild(payload_element)
                 }
+
+                fetch_counter?.lower()
+
+                // sort shit!
+
+                // probably scroll here?
             }
         )
-
-    // sort shit!
-
-    // probably scroll here?
 }
 
 function update_raw_containers()
@@ -329,8 +341,10 @@ fixed and modified by Yellow Fox
     timeTmpl.appendChild(periodTmpl);
 }
 
-function make_timeline(router, times_s= [])
+function make_timeline(router, times_s= [], fetch_counter = null)
 {
+    fetch_counter?.raise()
+
     let url = `/get/timeline/${router['id']}`
     if (times_s.length > 0)
     {
@@ -348,6 +362,8 @@ function make_timeline(router, times_s= [])
             timeline(timeline_element, data)
             target_element.innerHTML = ''
             target_element.appendChild(timeline_element)
+
+            fetch_counter?.lower()
         })
 }
 
