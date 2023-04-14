@@ -1,13 +1,13 @@
 {
   "name": "MikroTik App",
-  "description": "Simple example app",
+  "description": "App for visualization of MikroTik DSM.",
   "version": "1.0",
   "image": "qradar-app-base:2.1.12",
   "resources": {"memory": 100},
   "areas": [{
-    "id": "qmikrotik",
-    "text": "Hello World",
-    "description": "Hello World area",
+    "id": "qamikrotik",
+    "text": "MikroTik",
+    "description": "MikroTik Visualization",
     "url": "index",
     "required_capabilities": ["ADMIN"]
   }],
