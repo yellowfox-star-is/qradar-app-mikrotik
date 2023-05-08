@@ -11,7 +11,8 @@ from qpylib import qpylib
 
 import subprocess
 import os
-
+import sys
+sys.path.insert(0, '/opt/app-root/app')
 
 # Flask application factory.
 def create_app():
