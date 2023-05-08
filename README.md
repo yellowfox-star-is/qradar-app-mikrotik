@@ -1,6 +1,6 @@
 # qradar-app-mikrotik
 
-Simple visualization of data gathered via [Mikrotik DSM]([dsm-url]).
+Simple visualization of data gathered via [Mikrotik DSM](https://github.com/yellowfox-star-is/qradar-mikrotik-dsm).
 
 Be warned,<br />
 the current UI is very "programmer graphics" (ugly but usable).
@@ -15,7 +15,21 @@ I also have a more experience working on backends, rather than frontends, so the
 
 ## Installation
 
-Explain how to install your project here.
+### Inside QRadar
+
+supports only QRadar with Python 3
+
+1. Download packaged zip from [Releases](https://github.com/yellowfox-star-is/qradar-app-mikrotik/releases/latest)
+2. Install via Extensions Management
+
+### Outside QRadar
+
+1. Install Docker
+2. Install [QRadar App SDK](https://exchange.xforce.ibmcloud.com/hub/extension/517ff786d70b6dfa39dde485af6cbc8b)
+3. Download source files
+4. Navigate to source directory
+5. Edit qenv.ini file with location of your qradar instance
+6. run with `qapp run`
 
 ## Usage
 
