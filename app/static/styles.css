@@ -6,3 +6,7 @@ p {
 .child-setting-bar {
     margin-right: 2em; /* Add some vertical spacing between child elements */
 }
+
+.calendar-input {
+    width: 26em;
+}
